@@ -24,9 +24,8 @@ for (lib in base_libs) {
   # print(paste("Loading:", lib))
   usePackage(lib)
 }
-
-shape_path = "//SVWCCG111/publichealth$/2.0 KNOWLEDGE EVIDENCE & GOVERNANCE - KEG/2.8 GIS RESOURCES/Birmingham Geometries/Shape Files"
 weights_path = "//SVWCCG111/publichealth$/2.0 KNOWLEDGE EVIDENCE & GOVERNANCE - KEG/2.8 GIS RESOURCES/GP-mapping-tool/code/brum_ward_info.xlsx"
+
 
 get_locality_data <- function(
   df,
@@ -230,17 +229,22 @@ convert_GP_data <- function(
 
 add_const_lines <- function(
   map,
+  area_name = "BSol",
   const_names = "None",
   verbose = FALSE
   ) {
+  
+  # TODO: Fix hard coded file path
+  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/","constituencies", sep = "")
   constituencies <- readOGR(
-    paste(shape_path, "/constituencies", sep = ""),
+    paste(shape_path, sep = ""),
     "constituencies",
     verbose = verbose
   )
+  
   # Remove "Birmingham" from constituency names
   constituencies$name = gsub("Birmingham, ", "",
-                             x = constituencies$PCON13NM)
+                             x = constituencies$PCON22NM)
   # Add lines to map
   map <- map +
     tm_shape(constituencies) +
@@ -255,11 +259,14 @@ add_const_lines <- function(
 
 add_locality_lines <- function(
   map,
+  area_name = "BSol",
   locality_names = "None",
   verbose = FALSE
 ) {
+  #TODO: Fix hard coded file path
+  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/","localities", sep = "")
   localities <- readOGR(
-    paste(shape_path, "/localities", sep = ""),
+    paste(shape_path, sep = ""),
     "localities",
     verbose = FALSE
   )
@@ -288,6 +295,7 @@ plot_base_map <- function(
   value_header,
   map_title,
   save_name,
+  area_name = "BSol",
   map_type = "Ward",
   pallet = "Blues",
   verbose = FALSE
@@ -306,15 +314,23 @@ plot_base_map <- function(
     stop("Error: Unexpected map type")
   }
 
+  # Check for valid area name
+  if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
+    stop("Error: Unexpected area type. Available options: 'BSol', 'Birmingham', 'Solihull'")
+  }
+  
+  # TODO: Fix hard coded file path
+  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/",shape_type, sep = "")
+  print(shape_path)
   # Load ward shape data
   shape <- readOGR(
-    paste(shape_path, "/", shape_type, sep = ""),
+    shape_path,
     shape_type,
     verbose = verbose
     )
   if (map_type == "Constituency"){
     shape$const_name = gsub("Birmingham, ", "",
-                               x = shape$PCON13NM)
+                               x = shape$PCON22NM)
   }
 
   # join ward data
@@ -344,6 +360,7 @@ plot_base_map <- function(
 plot_map <- function(
   data,
   value_header,
+  area_name = "BSol",
   map_type = "Ward",
   save_name = "new_map.png",
   map_title = "",
@@ -366,8 +383,9 @@ plot_map <- function(
   map <- plot_base_map(
       data,
       value_header,
-      map_title,
-      save_name,
+      area_name = area_name,
+      map_title = map_title,
+      save_name = save_name,
       map_type = map_type,
       pallet = pallet,
       verbose = verbose
@@ -383,6 +401,7 @@ plot_map <- function(
       !(locality_lines %in% c("Yes", TRUE)))
       ) {
     map <- add_const_lines(map, 
+                           area_name = area_name,
                            const_names = const_names, 
                            verbose = verbose)
   }
@@ -390,8 +409,9 @@ plot_map <- function(
   if (locality_lines %in% c("Yes", TRUE) |
     (map_type == "Locality")) {
     map <- add_locality_lines(map, 
-                       locality_names = locality_names, 
-                       verbose = verbose)
+                              area_name = area_name,
+                              locality_names = locality_names, 
+                              verbose = verbose)
   }
   
   # Add compass
