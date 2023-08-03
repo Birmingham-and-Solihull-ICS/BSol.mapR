@@ -251,7 +251,7 @@ add_const_lines <- function(
     tm_borders(col = "grey40", lwd = 1.5)
   
   if (const_names %in% c("None", "Yes", TRUE)){
-    map <- map + tm_text(text = "name", size = 0.8)
+    map <- map + tm_text(text = "name", size = 0.6)
   }
     
   return(map)
@@ -276,7 +276,7 @@ add_locality_lines <- function(
     tm_borders(col = "grey40", lwd = 1.5)
   
   if (locality_names %in% c("None", "Yes", TRUE)){
-    map <- map + tm_text(text = "Locality", size = 0.8)
+    map <- map + tm_text(text = "Locality", size = 0.6)
   }
   
   return(map)
@@ -351,7 +351,8 @@ plot_base_map <- function(
     tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
-              legend.frame = FALSE) 
+              legend.frame = FALSE,
+              inner.margins = 0.08) 
   
   return(map)
 }
@@ -422,7 +423,7 @@ plot_map <- function(
   tmap_save(map,
             filename = save_name, 
             height = 5, 
-            width = 4)
+            width = 5)
   
   print(paste("Map saved to:", save_name))
   return(map)
