@@ -290,6 +290,12 @@ add_compass <- function(map) {
   return(map)
 }
 
+add_credits<- function(map, credits) {
+  map <- map + 
+    tm_credits(credits, size = 0.6, position = c(0, 0))
+  return(map)
+}
+
 plot_base_map <- function(
   area_data,
   value_header,
@@ -358,6 +364,7 @@ plot_base_map <- function(
 }
 
 
+
 plot_map <- function(
   data,
   value_header,
@@ -371,6 +378,7 @@ plot_map <- function(
   locality_lines = "None",
   locality_names = "None",
   compass = TRUE,
+  credits = "None",
   verbose = FALSE
 ) {
   
@@ -418,6 +426,10 @@ plot_map <- function(
   # Add compass
   if (compass %in% c("Yes", TRUE)){
     map <- add_compass(map)
+  }
+  
+  if (credits != "None") {
+    map <- add_credits(map, credits)
   }
   
   tmap_save(map,
