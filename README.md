@@ -63,7 +63,7 @@ randomly generated and does not reflect any real data.
 We aggregate this data using the function `convert_GP_data()`. At a
 minimum, this function takes:
 
-1.  `file_name`: The path to your GP-level data
+1.  `file`: The path to your GP-level data or your preloaded dataframe
 2.  `GP_code_header`: The name of the GP code column (Here it’s
     `"Practice Code"`)
 3.  `value_header`: The value you want to aggregate (Here it’s
@@ -75,7 +75,7 @@ Our code now looks like this:
 source("GP-mapper.R")
 
 data <- convert_GP_data(
-  file_name = "example_data.xlsx",
+  file = "example_data.xlsx",
   GP_code_header = "Practice Code",
   value_header = "Cases"
 )
@@ -100,7 +100,7 @@ aggregation level by setting `to` equal to `"Constituency"` or
 source("GP-mapper.R")
 
 data <- convert_GP_data(
-  file_name = "example_data.xlsx",
+  file = "example_data.xlsx",
   GP_code_header = "Practice Code",
   value_header = "Cases",
   sheet = "GP data",
@@ -208,7 +208,7 @@ example below.
 source("GP-mapper.R")
 
 data <- convert_GP_data(
-  file_name = "example_data.xlsx",
+  file = "example_data.xlsx",
   GP_code_header = "Practice Code",
   value_header = "Cases",
   norm_header = "Registered Patients",
