@@ -46,7 +46,7 @@ get_locality_data <- function(
     unique()
 
   df <- df %>%
-    left_join(local_list)
+    left_join(local_list, by = "Constituency") 
   #View(df)
   
   if (norm_header == "None") {
