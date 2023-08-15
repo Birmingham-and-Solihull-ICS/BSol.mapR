@@ -68,7 +68,7 @@ get_locality_data <- function(
   return(out)
 }
 
-GP_weightings <- function(file_name, 
+GP_weightings <- function(file, 
                        GP_code_header,
                        value_header,
                        norm_header = "None",
@@ -94,10 +94,20 @@ GP_weightings <- function(file_name,
     ncol <- 4
   }
 
-  GP_data <- read_excel(file_name, sheet = sheet) %>%
-    select(all_of(GP_select_list)) %>%
-    # Rename columns to make it easier to work with (changed back later)
-    rename(`Practice Code` = 1, `Value` = 2)
+  if (is.character(file)) {
+    GP_data <- read_excel(file, sheet = sheet) %>%
+      select(all_of(GP_select_list)) %>%
+      # Rename columns to make it easier to work with (changed back later)
+      rename(`Practice Code` = 1, `Value` = 2)
+  } else if (is.data.frame(file)) {
+    GP_data <- file %>%
+      select(all_of(GP_select_list)) %>%
+      # Rename columns to make it easier to work with (changed back later)
+      rename(`Practice Code` = 1, `Value` = 2)
+  } else {
+    print("Error: Unrecognised input data type.")
+  }
+  
   # If there's a normalisation value, change the name for that too
   if (norm_header != "None"){
     GP_data = rename(GP_data, `Norm` = 3)
@@ -174,7 +184,7 @@ GP_weightings <- function(file_name,
 }
 
 convert_GP_data <- function(
-  file_name, 
+  file, 
   GP_code_header,
   value_header,
   to = "Ward",
@@ -192,7 +202,7 @@ convert_GP_data <- function(
   }
       
   # Get ward/constituency values
-  area_data <- GP_weightings(file_name, 
+  area_data <- GP_weightings(file, 
                         GP_code_header,
                         value_header,
                         norm_header = norm_header,
