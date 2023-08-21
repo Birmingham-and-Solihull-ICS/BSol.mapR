@@ -300,9 +300,10 @@ add_compass <- function(map) {
   return(map)
 }
 
-add_credits<- function(map, credits) {
+add_credits<- function(map, credits, credits_size) {
   map <- map + 
-    tm_credits(credits, size = 0.6, position = c(0, 0))
+    tm_credits(credits, size = credits_size,
+               position = c(0, 0))
   return(map)
 }
 
@@ -373,8 +374,6 @@ plot_base_map <- function(
   return(map)
 }
 
-
-
 plot_map <- function(
   data,
   value_header,
@@ -388,7 +387,9 @@ plot_map <- function(
   locality_lines = "None",
   locality_names = "None",
   compass = TRUE,
-  credits = "None",
+  credits = "Contains OS data \u00A9 Crown copyright and database right 2020. Source:
+Office for National Statistics licensed under the Open Government Licence v.3.0.",
+  credits_size = 0.6,
   verbose = FALSE
 ) {
   
@@ -439,7 +440,8 @@ plot_map <- function(
   }
   
   if (credits != "None") {
-    map <- add_credits(map, credits)
+    map <- add_credits(map, credits, 
+                       credits_size = credits_size)
   }
   
   tmap_save(map,
