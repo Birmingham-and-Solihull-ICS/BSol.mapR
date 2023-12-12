@@ -36,23 +36,24 @@ add_const_lines <- function(
 ) {
   
   # TODO: Fix hard coded file path
-  shape_path = paste(shape_file_path, area_name, "/","constituencies", sep = "")
+  shape_path = paste(shape_file_path, "Constituency", sep = "")
   constituencies <- readOGR(
-    paste(shape_path, sep = ""),
-    "constituencies",
+    shape_path,
+    "Constituency",
     verbose = verbose
   )
+  constituencies <- filter_shape(constituencies, area_name)
+
+  # TODO: Remove this when switching to sf
+  colnames(constituencies@data)[1] = "Constituency"
   
-  # Remove "Birmingham" from constituency names
-  constituencies$name = gsub("Birmingham, ", "",
-                             x = constituencies$PCON22NM)
   # Add lines to map
   map <- map +
     tm_shape(constituencies) +
     tm_borders(col = "grey40", lwd = 1.5)
   
   if (const_names %in% c("None", "Yes", TRUE)){
-    map <- map + tm_text(text = "name", size = 0.8)
+    map <- map + tm_text(text = "Constituency", size = 0.8)
   }
   
   return(map)
@@ -64,13 +65,15 @@ add_locality_lines <- function(
     locality_names = "None",
     verbose = FALSE
 ) {
+  
   #TODO: Fix hard coded file path
-  shape_path = paste(shape_file_path, area_name, "/","localities", sep = "")
+  shape_path = paste(shape_file_path, "Locality", sep = "")
   localities <- readOGR(
-    paste(shape_path, sep = ""),
-    "localities",
+    shape_path,
+    "Locality",
     verbose = FALSE
   )
+  localities <- filter_shape(localities, area_name)
   
   map <- map +
     tm_shape(localities) +
@@ -91,6 +94,23 @@ add_compass <- function(map) {
   return(map)
 }
 
+filter_shape <- function(
+    shape, 
+    area_name, 
+    area_type = "") {
+  # Cut the shape file down to the correct area
+  if ((tolower(area) == "bsol") | area_type == "Postal District") {
+    # Do nothing
+  } else if (tolower(area) == "birmingham") {
+    # Filter for Birmingham
+    shape <- shape[shape@data$Area == "Birmingham",]
+  } else if (tolower(area) == "solihull") {
+    # Filter for Birmingham
+    shape <- shape[shape@data$Area == "Solihull",]
+  }
+  return(shape)
+}
+
 add_credits<- function(map, credits, credits_size) {
   map <- map + 
     tm_credits(credits, size = credits_size,
@@ -108,20 +128,9 @@ plot_base_map <- function(
     pallet = "Blues",
     verbose = FALSE
 ) {
-  
-  if (map_type == "Ward"){
-    shape_type = "wards"
-    shape_header = "ward_name"
-  } else if (map_type == "Constituency"){
-    shape_type = "constituencies"
-    shape_header = "const_name"
-  } else if (map_type == "Locality"){
-    shape_type = "localities"
-    shape_header = "Locality"
-  } else if (map_type == "Postal District"){
-    shape_type = "Postal District"
-    shape_header = "PostDist"
-  }else {
+  # Check for valid map type
+  if (!(map_type %in% c("Locality", "Constituency", "Ward", 
+                          "Postal District", "LSOA", "MSOA"))) {
     stop("Error: Unexpected map type")
   }
   
@@ -129,42 +138,47 @@ plot_base_map <- function(
   if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
     stop("Error: Unexpected area type. Available options: 'BSol', 'Birmingham', 'Solihull'")
   }
-  
-  # TODO: Fix hard coded file path
-  if (shape_type == "Postal District") {
-    shape_path = paste(shape_file_path, shape_type, sep = "")
-  } else {
-    shape_path = paste(shape_file_path, area_name, "/",shape_type, sep = "")
-  }
 
   # Load base shape - to get correct map zoom
-  base_path = paste(shape_file_path, area_name, "/localities", sep = "")
-  base_shape <- readOGR(
+  base_path = paste(shape_file_path, "Locality", sep = "")
+    base_shape <- readOGR(
     base_path,
-    "localities",
+    "Locality",
     verbose = verbose
   )
+  base_shape <- filter_shape(base_shape, area_name)
 
   # Load shape data
+  shape_path = paste(shape_file_path, map_type, sep = "")
+
   shape <- readOGR(
     shape_path,
-    shape_type,
+    map_type,
     verbose = verbose
   )
 
+  shape <- filter_shape(shape, area_type, map_type)
   
-  if (map_type == "Constituency"){
-    shape$const_name = gsub("Birmingham, ", "",
-                            x = shape$PCON22NM)
+
+  
+  # TODO: Remove this when switching to sf
+  if (map_type == "Constituency") {
+    colnames(shape@data)[1] = "Constituency"
+  } else if (map_type == "Postal District") {
+    colnames(shape@data)[1] = "Postal District"
   }
   
   # join data
+  print(colnames(shape@data))
+  print(colnames(area_data))
+  #print(paste(abbreviate(map_type, 7)[[1]], "-", map_type))
+  
   brum_merged <- merge(shape, 
                        area_data,
-                       by.x = shape_header,
-                       by.y = colnames(area_data)[[1]])
+                       by = map_type)
   
   brum_merged@data[is.na(brum_merged@data)] <- 0
+  
   
   #### plot map ####
   map <- tm_shape(base_shape) +
