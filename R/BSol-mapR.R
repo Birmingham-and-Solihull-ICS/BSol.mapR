@@ -344,7 +344,10 @@ plot_base_map <- function(
   } else if (map_type == "Locality"){
     shape_type = "localities"
     shape_header = "Locality"
-  } else {
+  } else if (map_type == "Postal District"){
+    shape_type = "Postal District"
+    shape_header = "PostDist"
+  }else {
     stop("Error: Unexpected map type")
   }
   
@@ -354,19 +357,34 @@ plot_base_map <- function(
   }
   
   # TODO: Fix hard coded file path
-  shape_path = paste(shape_file_path, area_name, "/",shape_type, sep = "")
-  # Load ward shape data
+  if (shape_type == "Postal District") {
+    shape_path = paste(shape_file_path, shape_type, sep = "")
+  } else {
+    shape_path = paste(shape_file_path, area_name, "/",shape_type, sep = "")
+  }
+
+  # Load base shape - to get correct map zoom
+  base_path = paste(shape_file_path, area_name, "/localities", sep = "")
+  base_shape <- readOGR(
+    base_path,
+    "localities",
+    verbose = verbose
+  )
+
+  # Load shape data
   shape <- readOGR(
     shape_path,
     shape_type,
     verbose = verbose
   )
+
+  
   if (map_type == "Constituency"){
     shape$const_name = gsub("Birmingham, ", "",
                             x = shape$PCON22NM)
   }
   
-  # join ward data
+  # join data
   brum_merged <- merge(shape, 
                        area_data,
                        by.x = shape_header,
@@ -375,7 +393,10 @@ plot_base_map <- function(
   brum_merged@data[is.na(brum_merged@data)] <- 0
   
   #### plot map ####
-  map <- tm_shape(brum_merged) +
+  map <- tm_shape(base_shape) +
+    # Invisible base layer to fix map zoom
+    tm_borders(lwd = 0) + 
+    tm_shape(brum_merged) +
     tm_fill(value_header,
             title = map_title,
             palette = pallet,
@@ -434,7 +455,9 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
        !(const_lines %in% c("No", FALSE))) |
       ((map_type == "Constituency") & 
        !(const_lines %in% c("No", FALSE)) & 
-       !(locality_lines %in% c("Yes", TRUE)))
+       !(locality_lines %in% c("Yes", TRUE))) |
+      ((map_type == "Postal District")& 
+       !(const_lines %in% c("No", FALSE)))
   ) {
     map <- add_const_lines(map, 
                            area_name = area_name,
