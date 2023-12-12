@@ -15,7 +15,8 @@ usePackage <- function(p) {
   require(p, character.only = TRUE)
 }
 
-shape_file_path = "../data/Shape Files/"
+root_path = ""
+shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
 # Load / install libraries
 base_libs <- c("readxl", 
@@ -27,8 +28,8 @@ for (lib in base_libs) {
   usePackage(lib)
 }
 
-weights_path_21 = "../data/Brum_ward_info.xlsx"
-weights_path_23 = "../data/BSol_ward_info.xlsx"
+weights_path_21 = paste(root_path, "../data/Brum_ward_info.xlsx", sep = "")
+weights_path_23 = paste(root_path, "../data/BSol_ward_info.xlsx", sep = "")
 
 
 get_locality_data <- function(
@@ -354,7 +355,6 @@ plot_base_map <- function(
   
   # TODO: Fix hard coded file path
   shape_path = paste(shape_file_path, area_name, "/",shape_type, sep = "")
-  print(shape_path)
   # Load ward shape data
   shape <- readOGR(
     shape_path,
