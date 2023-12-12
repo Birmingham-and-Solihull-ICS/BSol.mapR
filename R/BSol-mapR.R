@@ -5,6 +5,7 @@
 #
 # * Based on 2021 ward weights 
 # TODO: Tidy everything
+# TODO: Calculate new ward conversion matrix
 
 options(warn=-1)
 
@@ -14,6 +15,7 @@ usePackage <- function(p) {
   require(p, character.only = TRUE)
 }
 
+shape_file_path = "../data/Shape Files/"
 
 # Load / install libraries
 base_libs <- c("readxl", 
@@ -24,27 +26,29 @@ for (lib in base_libs) {
   # print(paste("Loading:", lib))
   usePackage(lib)
 }
-weights_path = "../data/brum_ward_info.xlsx"
+
+weights_path_21 = "../data/Brum_ward_info.xlsx"
+weights_path_23 = "../data/BSol_ward_info.xlsx"
 
 
 get_locality_data <- function(
-  df,
-  norm_output_per = 100,
-  norm_header = "None") {
+    df,
+    norm_output_per = 100,
+    norm_header = "None") {
   # Convert ward level data frame to constituency or locality level
   
   df <- df %>%
     mutate("Constituency" = Name) %>%
     select(-c("Name"))
-
+  
   local_list <- read_excel(
-    weights_path,
+    weights_path_21,
     sheet = "ward_list"
   ) %>%
     select("Constituency", 
            "Locality") %>%
     unique()
-
+  
   df <- df %>%
     left_join(local_list, by = "Constituency") 
   #View(df)
@@ -69,31 +73,31 @@ get_locality_data <- function(
 }
 
 GP_weightings <- function(file, 
-                       GP_code_header,
-                       value_header,
-                       norm_header = "None",
-                       weighting = "Ward",
-                       norm_output_per = 100,
-                       sheet = 1) {
+                          GP_code_header,
+                          value_header,
+                          norm_header = "None",
+                          weighting = "Ward",
+                          norm_output_per = 100,
+                          sheet = 1) {
   
   # make list of column headers to extract from GP data
   if (norm_header == "None") {
     GP_select_list = c(GP_code_header,
                        value_header)
     headers = c('Ward',
-                     'Area Value')
+                'Area Value')
     ncol <- 2
   } else {
     GP_select_list = c(GP_code_header,
                        value_header, 
                        norm_header)
     headers = c('Ward',
-                     'Area Value', 
-                     'Area Norm',
-                     'Ward Percent')
+                'Area Value', 
+                'Area Norm',
+                'Ward Percent')
     ncol <- 4
   }
-
+  
   if (is.character(file)) {
     GP_data <- read_excel(file, sheet = sheet) %>%
       select(all_of(GP_select_list)) %>%
@@ -117,18 +121,30 @@ GP_weightings <- function(file,
   
   # Load GP weights file
   if (weighting == "Ward") {
-    gpWeights <- read_excel(weights_path, sheet = "ward_weighting")
+    gpWeights <- read_excel(weights_path_21, sheet = "ward_weighting")
   } else if (weighting == "Constituency") {
-    gpWeights <- read_excel(weights_path, sheet = "const_weighting")
+    gpWeights <- read_excel(weights_path_21, sheet = "const_weighting")
   } else {
     stop("Error: Unexpected weighting")
   }
+  
+  # Check if all required GPs are there
+  check_mask <- GP_data$`Practice Code` %in% gpWeights$`Practice Code`
+  if (!all(check_mask)){
+    print("One or more GP codes provided are missing from the conversion matrix.")
+    missingGPs <- GP_data$`Practice Code`[!check_mask]
+    if (length(missingGPs) < 10) {
+      print(missingGPs) 
+    }
+  }
+  
+  
   # get list of all wards
   allWardNames <- colnames(gpWeights)[2:length(colnames(gpWeights))]
   
   #create data frame with 0 rows and 3 columns
   areaCounts <- data.frame(matrix(ncol = ncol, nrow = 0))
-
+  
   
   # Loop over all wards to sum contributions from each GP
   for (ward_i in allWardNames) {
@@ -140,8 +156,8 @@ GP_weightings <- function(file,
     
     ward_i_counts <- ward_i_weights %>%
       left_join(GP_data, 
-               by = "Practice Code") 
-
+                by = "Practice Code") 
+    
     if (norm_header == "None") {
       ward_i_counts <- ward_i_counts %>%
         mutate(
@@ -150,9 +166,9 @@ GP_weightings <- function(file,
         summarise(
           `Area Value` = sum(`Area Value`, na.rm=TRUE)
         )  %>%
-         mutate(
-           Name = all_of(ward_i)
-           )
+        mutate(
+          Name = all_of(ward_i)
+        )
     } else {
       ward_i_counts <- ward_i_counts %>%
         mutate(
@@ -166,7 +182,7 @@ GP_weightings <- function(file,
         ) %>%
         mutate(
           Name = all_of(ward_i)
-          )
+        )
     }
     
     areaCounts <- rbind(areaCounts, ward_i_counts)
@@ -184,15 +200,15 @@ GP_weightings <- function(file,
 }
 
 convert_GP_data <- function(
-  file, 
-  GP_code_header,
-  value_header,
-  to = "Ward",
-  norm_header = "None",
-  norm_output_per = 100,
-  sheet = 1
-  ) {
-
+    file, 
+    GP_code_header,
+    value_header,
+    to = "Ward",
+    norm_header = "None",
+    norm_output_per = 100,
+    sheet = 1
+) {
+  
   if (to %in% c("Ward","Constituency")) {
     weighting = to
   } else if (to == "Locality") {
@@ -200,15 +216,15 @@ convert_GP_data <- function(
   } else {
     stop("Error: 'to' must be one of: ['ward', 'constituency','locality']")
   }
-      
+  
   # Get ward/constituency values
   area_data <- GP_weightings(file, 
-                        GP_code_header,
-                        value_header,
-                        norm_header = norm_header,
-                        norm_output_per = norm_output_per,
-                        weighting = weighting,
-                        sheet = sheet) 
+                             GP_code_header,
+                             value_header,
+                             norm_header = norm_header,
+                             norm_output_per = norm_output_per,
+                             weighting = weighting,
+                             sheet = sheet) 
   
   if (to == "Locality") {
     # aggregate to ward (do nothing), constituency or locality
@@ -238,14 +254,14 @@ convert_GP_data <- function(
 
 
 add_const_lines <- function(
-  map,
-  area_name = "BSol",
-  const_names = "None",
-  verbose = FALSE
-  ) {
+    map,
+    area_name = "Birmingham",
+    const_names = "None",
+    verbose = FALSE
+) {
   
   # TODO: Fix hard coded file path
-  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/","constituencies", sep = "")
+  shape_path = paste(shape_file_path, area_name, "/","constituencies", sep = "")
   constituencies <- readOGR(
     paste(shape_path, sep = ""),
     "constituencies",
@@ -263,24 +279,24 @@ add_const_lines <- function(
   if (const_names %in% c("None", "Yes", TRUE)){
     map <- map + tm_text(text = "name", size = 0.6)
   }
-    
+  
   return(map)
 }
 
 add_locality_lines <- function(
-  map,
-  area_name = "BSol",
-  locality_names = "None",
-  verbose = FALSE
+    map,
+    area_name = "Birmingham",
+    locality_names = "None",
+    verbose = FALSE
 ) {
   #TODO: Fix hard coded file path
-  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/","localities", sep = "")
+  shape_path = paste(shape_file_path, area_name, "/","localities", sep = "")
   localities <- readOGR(
     paste(shape_path, sep = ""),
     "localities",
     verbose = FALSE
   )
-
+  
   map <- map +
     tm_shape(localities) +
     tm_borders(col = "grey40", lwd = 1.5)
@@ -296,7 +312,7 @@ add_locality_lines <- function(
 add_compass <- function(map) {
   map <- map + 
     tm_compass(type = "8star", size = 4,
-             position = c("RIGHT", "bottom"))
+               position = c("RIGHT", "bottom"))
   return(map)
 }
 
@@ -308,15 +324,15 @@ add_credits<- function(map, credits, credits_size) {
 }
 
 plot_base_map <- function(
-  area_data,
-  value_header,
-  map_title,
-  save_name,
-  area_name = "BSol",
-  map_type = "Ward",
-  pallet = "Blues",
-  verbose = FALSE
-  ) {
+    area_data,
+    value_header,
+    map_title,
+    save_name,
+    area_name = "Birmingham",
+    map_type = "Ward",
+    pallet = "Blues",
+    verbose = FALSE
+) {
   
   if (map_type == "Ward"){
     shape_type = "wards"
@@ -330,26 +346,26 @@ plot_base_map <- function(
   } else {
     stop("Error: Unexpected map type")
   }
-
+  
   # Check for valid area name
   if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
     stop("Error: Unexpected area type. Available options: 'BSol', 'Birmingham', 'Solihull'")
   }
   
   # TODO: Fix hard coded file path
-  shape_path = paste("~/Main work/MiscCode/GP-mapper/Shape Files/", area_name, "/",shape_type, sep = "")
+  shape_path = paste(shape_file_path, area_name, "/",shape_type, sep = "")
   print(shape_path)
   # Load ward shape data
   shape <- readOGR(
     shape_path,
     shape_type,
     verbose = verbose
-    )
+  )
   if (map_type == "Constituency"){
     shape$const_name = gsub("Birmingham, ", "",
-                               x = shape$PCON22NM)
+                            x = shape$PCON22NM)
   }
-
+  
   # join ward data
   brum_merged <- merge(shape, 
                        area_data,
@@ -375,22 +391,22 @@ plot_base_map <- function(
 }
 
 plot_map <- function(
-  data,
-  value_header,
-  area_name = "BSol",
-  map_type = "Ward",
-  save_name = "new_map.png",
-  map_title = "",
-  pallet = "Blues",
-  const_lines = "None",
-  const_names = "None",
-  locality_lines = "None",
-  locality_names = "None",
-  compass = TRUE,
-  credits = "Contains OS data \u00A9 Crown copyright and database right 2020. Source:
+    data,
+    value_header,
+    area_name = "Birmingham",
+    map_type = "Ward",
+    save_name = "new_map.png",
+    map_title = "",
+    pallet = "Blues",
+    const_lines = "None",
+    const_names = "None",
+    locality_lines = "None",
+    locality_names = "None",
+    compass = TRUE,
+    credits = "Contains OS data \u00A9 Crown copyright and database right 2020. Source:
 Office for National Statistics licensed under the Open Government Licence v.3.0.",
-  credits_size = 0.6,
-  verbose = FALSE
+    credits_size = 0.6,
+    verbose = FALSE
 ) {
   
   options("rgdal_show_exportToProj4_warnings"="none")
@@ -401,25 +417,25 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   tmap_options(show.messages = verbose)
   
   map <- plot_base_map(
-      data,
-      value_header,
-      area_name = area_name,
-      map_title = map_title,
-      save_name = save_name,
-      map_type = map_type,
-      pallet = pallet,
-      verbose = verbose
-    )
-
+    data,
+    value_header,
+    area_name = area_name,
+    map_title = map_title,
+    save_name = save_name,
+    map_type = map_type,
+    pallet = pallet,
+    verbose = verbose
+  )
+  
   # Add constituency lines
   if ((const_lines %in% c("Yes", TRUE)) |
       ((map_type == "Ward") &
        (locality_lines == "None") & 
-        !(const_lines %in% c("No", FALSE))) |
+       !(const_lines %in% c("No", FALSE))) |
       ((map_type == "Constituency") & 
-      !(const_lines %in% c("No", FALSE)) & 
-      !(locality_lines %in% c("Yes", TRUE)))
-      ) {
+       !(const_lines %in% c("No", FALSE)) & 
+       !(locality_lines %in% c("Yes", TRUE)))
+  ) {
     map <- add_const_lines(map, 
                            area_name = area_name,
                            const_names = const_names, 
@@ -427,7 +443,7 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   }
   
   if (locality_lines %in% c("Yes", TRUE) |
-    (map_type == "Locality")) {
+      (map_type == "Locality")) {
     map <- add_locality_lines(map, 
                               area_name = area_name,
                               locality_names = locality_names, 
@@ -455,8 +471,8 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
 
 
 save_data <- function(
-  data,
-  save_path = "map_data.xlsx"
+    data,
+    save_path = "map_data.xlsx"
 ) {
   extention <- strsplit(x = (save_path), split = "\\.")[[1]][[2]]
   if (! (extention %in% c("xlsx", "csv") )) {
@@ -474,6 +490,6 @@ save_data <- function(
     write_xlsx(
       data, 
       save_path
-      )
+    )
   }
 }
