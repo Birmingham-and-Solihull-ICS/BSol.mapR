@@ -1,11 +1,11 @@
-GP-Mapper
+BSol-mapR
 ================
 David Ellis
 Last Updated: 2023-04-25
 
 ## Introduction
 
-### What is `GP-Mapper`?
+### What is `BSol-mapR`?
 
 Within Public Health we often work a lot with data where we have a
 number for each GP. However, it can be difficult to draw out any wider
@@ -14,7 +14,7 @@ want to convert this GP-level data into ward, constituency or
 locality-level data. This data is then much easier to visualise as a
 choropleth map (often called a heat map).
 
-`GP-mapper` is an R module designed to automatically convert GP-level
+`BSol-mapR` is an R module designed to automatically convert GP-level
 counts to a ward, constituency or locality level, and produce
 customisable choropleth maps, such as that shown below. We can show
 numbers in both their raw and normalised form (for example total number
@@ -22,23 +22,23 @@ of cases vs. cases per 1000 registered patients).
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme1.png" alt="GP-mapper example using randomly generated data" width="50%" />
+<img src="data/readme-images/readme1.png" alt="BSol-mapR example using randomly generated data" width="50%" />
 <p class="caption">
-GP-mapper example using randomly generated data
+BSol-mapR example using randomly generated data
 </p>
 
 </div>
 
-## `GP-Mapper` basics
+## `BSol-mapR` basics
 
-### Loading GP-mapper
+### Loading BSol-mapR
 
 All of the code and geometries are stored on the shared drive
 `publichealth$`. To load the module, all you have to do is tell R where
 to find it. This is done using `source()` as follows.
 
 ``` r
-source("GP-mapper.R")
+source("BSol-mapR.R")
 ```
 
 ### Aggregating data
@@ -47,12 +47,12 @@ Next, we need some GP-level data, for example from
 [FingerTips](https://fingertips.phe.org.uk/). As a minimum, the data
 must have a column containing the GP practice codes and the values you
 want to aggregate as shown in the example below. Don’t worry if you have
-additional columns. We will tell the GP-mapper which columns we want to
+additional columns. We will tell the BSol-mapR which columns we want to
 use and any others will be ignored.
 
 <div class="figure" style="text-align: center">
 
-<img src="images/example_data_1.png" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="70%" />
+<img src="data/readme-images/example_data_1.png" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="70%" />
 <p class="caption">
 Example data set of the number of ‘Cases’ for each GP. This data is
 randomly generated and does not reflect any real data.
@@ -72,7 +72,7 @@ minimum, this function takes:
 Our code now looks like this:
 
 ``` r
-source("GP-mapper.R")
+source("BSol-mapR.R")
 
 data <- convert_GP_data(
   file = "example_data.xlsx",
@@ -84,7 +84,7 @@ data <- convert_GP_data(
 You can run this code by either highlighting the code and clicking `Run`
 or by pressing `Ctrl` + `Alt` + `R`.
 
-`GP-mapper` will automatically download any missing prerequisite
+`BSol-mapR` will automatically download any missing prerequisite
 libraries so this may take a few minutes the first time running it on
 your machine.
 
@@ -97,7 +97,7 @@ aggregation level by setting `to` equal to `"Constituency"` or
 `"Locality"`. Both of these are shown in the example below.
 
 ``` r
-source("GP-mapper.R")
+source("BSol-mapR.R")
 
 data <- convert_GP_data(
   file = "example_data.xlsx",
@@ -164,9 +164,9 @@ This produces a map that looks like this:
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme2.png" alt="Example of a basic map produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme2.png" alt="Example of a basic map produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
-Example of a basic map produced by `GP-mapper` from randomly generated
+Example of a basic map produced by `BSol-mapR` from randomly generated
 data.
 </p>
 
@@ -191,9 +191,9 @@ reference population. For example, if we’re investigating the rates of
 teenage pregnancy it would probably be best to look at the number of
 cases per X the number of teenage girls.
 
-### Normalising with `GP-mapper`
+### Normalising with `BSol-mapR`
 
-Fortunately, normalising data with `GP-mapper` is easy. All we have to
+Fortunately, normalising data with `BSol-mapR` is easy. All we have to
 do is add a new argument `norm_header` to `convert_GP_data()` with the
 name of the column variable that contains our denominator.
 
@@ -205,7 +205,7 @@ the population we would set `norm_output_per = 1000` as shown in the
 example below.
 
 ``` r
-source("GP-mapper.R")
+source("BSol-mapR.R")
 
 data <- convert_GP_data(
   file = "example_data.xlsx",
@@ -262,9 +262,9 @@ below.
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme3.png" alt="Example of multi-line title produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme3.png" alt="Example of multi-line title produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
-Example of multi-line title produced by `GP-mapper` from randomly
+Example of multi-line title produced by `BSol-mapR` from randomly
 generated data.
 </p>
 
@@ -280,7 +280,7 @@ information about R’s colour pallets
 
 <div class="figure" style="text-align: center">
 
-<img src="images/colour-pallets.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: [DataNovia](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)." width="50%" />
+<img src="data/readme-images/colour-pallets.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: [DataNovia](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)." width="50%" />
 <p class="caption">
 Some of the sequential (top) and diverging (bottom) colour maps that are
 preprogrammed into R. Source:
@@ -310,17 +310,17 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme4.png" alt="Example of a constituency-level map with a title and custom colour pallet produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme4.png" alt="Example of a constituency-level map with a title and custom colour pallet produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a constituency-level map with a title and custom colour
-pallet produced by `GP-mapper` from randomly generated data.
+pallet produced by `BSol-mapR` from randomly generated data.
 </p>
 
 </div>
 
 ### Area names and boundaries
 
-As can be seen from the examples above, for ward-level maps `GP-mapper`
+As can be seen from the examples above, for ward-level maps `BSol-mapR`
 defaults to showing constituency lines and names. These can be turned
 off by setting `const_lines` and `const_names` both to `FALSE`. For
 example:
@@ -338,10 +338,10 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme5.png" alt="Example of a ward-level map with constituency boundaries and names switched off produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme5.png" alt="Example of a ward-level map with constituency boundaries and names switched off produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level map with constituency boundaries and names
-switched off produced by `GP-mapper` from randomly generated data.
+switched off produced by `BSol-mapR` from randomly generated data.
 </p>
 
 </div>
@@ -362,10 +362,10 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme6.png" alt="Example of a ward-level map with locality boundaries and names switched on. Produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme6.png" alt="Example of a ward-level map with locality boundaries and names switched on. Produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level map with locality boundaries and names switched
-on. Produced by `GP-mapper` from randomly generated data.
+on. Produced by `BSol-mapR` from randomly generated data.
 </p>
 
 </div>
@@ -391,10 +391,10 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="images/readme7.png" alt="Example of a ward-level with the compass turned off. Produced by `GP-mapper` from randomly generated data." width="50%" />
+<img src="data/readme-images/readme7.png" alt="Example of a ward-level with the compass turned off. Produced by `BSol-mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level with the compass turned off. Produced by
-`GP-mapper` from randomly generated data.
+`BSol-mapR` from randomly generated data.
 </p>
 
 </div>
