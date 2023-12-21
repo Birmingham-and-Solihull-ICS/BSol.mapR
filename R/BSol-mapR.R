@@ -129,8 +129,8 @@ plot_base_map <- function(
     verbose = FALSE
 ) {
   # Check for valid map type
-  if (!(map_type %in% c("Locality", "Constituency", "Ward", 
-                          "Postal District", "LSOA11", "MSOA11"))) {
+  if (!(map_type %in% c("Locality", "Constituency", "Ward", "Postal District", 
+                        "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
     stop("Error: Unexpected map type")
   }
   
