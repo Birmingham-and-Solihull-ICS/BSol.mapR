@@ -130,7 +130,7 @@ plot_base_map <- function(
 ) {
   # Check for valid map type
   if (!(map_type %in% c("Locality", "Constituency", "Ward", 
-                          "Postal District", "LSOA11", "MSOA"))) {
+                          "Postal District", "LSOA11", "MSOA11"))) {
     stop("Error: Unexpected map type")
   }
   
@@ -236,17 +236,13 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   )
   
   # Add constituency lines
-  if ((const_lines %in% c("Yes", TRUE)) |
-      ((map_type == "Ward") &
-       (locality_lines == "None") & 
-       !(const_lines %in% c("No", FALSE))) |
-      ((map_type == "Constituency") & 
-       !(const_lines %in% c("No", FALSE)) & 
-       !(locality_lines %in% c("Yes", TRUE))) |
-      ((map_type == "Postal District")& 
-       !(const_lines %in% c("No", FALSE))) |
-      ((map_type == "LSOA11")& 
-       !(const_lines %in% c("No", FALSE)))
+  if ( 
+    const_lines %in% c("Yes", TRUE) |
+    (map_type %in% c("Ward", "Constituency", "Postal District", "LSOA11", 
+                        "MSOA11", "LSOA21", "MSOA21") &
+    locality_lines == "None" & 
+    !(const_lines %in% c("No", FALSE))
+    )
   ) {
     map <- add_const_lines(map, 
                            area_name = area_name,
