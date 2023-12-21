@@ -204,7 +204,6 @@ plot_map <- function(
     value_header,
     area_name = "Birmingham",
     map_type = "Ward",
-    save_name = "new_map.png",
     map_title = "",
     pallet = "Blues",
     const_lines = "None",
@@ -273,12 +272,22 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
                        credits_size = credits_size)
   }
   
-  tmap_save(map,
-            filename = save_name, 
-            height = 5, 
-            width = 5)
-  
-  print(paste("Map saved to:", save_name))
+
   return(map)
 }
+
+save_map <- function(
+    map,
+    save_name = "new_map.png",
+    height = 5,
+    weight = 5
+    ){
+  
+  tmap_save(map,
+            filename = save_name, 
+            height = height, 
+            width = weight)
+  
+  print(paste("Map saved to:", save_name))
+  }
 
