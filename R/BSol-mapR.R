@@ -28,6 +28,23 @@ for (lib in base_libs) {
   usePackage(lib)
 }
 
+check_type_and_area <- function(map_type, area_name) {
+  # Check for valid map type
+  if (!(map_type %in% c("Locality", "Constituency", "Ward", "Postal District", 
+                        "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
+    stop(paste("Error: Unexpected map type. Given `", map_type,"`", sep = ""))
+  }
+  
+  # Check for valid area name
+  if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
+    stop(
+      paste(
+        "Error: Unexpected area type. Available options: 'BSol', 'Birmingham', 'Solihull'\nGiven: `", 
+        area_name,"`", sep = "")
+      )
+  }
+}
+
 add_const_lines <- function(
     map,
     area_name = "Birmingham",
@@ -42,7 +59,7 @@ add_const_lines <- function(
     "Constituency",
     verbose = verbose
   )
-  constituencies <- filter_shape(constituencies, area_name)
+  constituencies <- filter_shape(constituencies, area_name, area_type = "Constituency")
 
   # TODO: Remove this when switching to sf
   colnames(constituencies@data)[1] = "Constituency"
@@ -73,7 +90,7 @@ add_locality_lines <- function(
     "Locality",
     verbose = FALSE
   )
-  localities <- filter_shape(localities, area_name)
+  localities <- filter_shape(localities, area_name, area_type = "Locality")
   
   map <- map +
     tm_shape(localities) +
@@ -96,15 +113,16 @@ add_compass <- function(map) {
 
 filter_shape <- function(
     shape, 
-    area_name, 
-    area_type = "") {
+    area_name,
+    area_type) {
+  
   # Cut the shape file down to the correct area
-  if ((tolower(area) == "bsol") | area_type == "Postal District") {
+  if ((tolower(area_name) == "bsol") | area_type == "Postal District") {
     # Do nothing
-  } else if (tolower(area) == "birmingham") {
+  } else if (tolower(area_name) == "birmingham") {
     # Filter for Birmingham
     shape <- shape[shape@data$Area == "Birmingham",]
-  } else if (tolower(area) == "solihull") {
+  } else if (tolower(area_name) == "solihull") {
     # Filter for Birmingham
     shape <- shape[shape@data$Area == "Solihull",]
   }
@@ -122,22 +140,13 @@ plot_base_map <- function(
     area_data,
     value_header,
     map_title,
-    save_name,
     area_name = "Birmingham",
     map_type = "Ward",
     pallet = "Blues",
     verbose = FALSE
 ) {
-  # Check for valid map type
-  if (!(map_type %in% c("Locality", "Constituency", "Ward", "Postal District", 
-                        "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
-    stop("Error: Unexpected map type")
-  }
-  
-  # Check for valid area name
-  if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
-    stop("Error: Unexpected area type. Available options: 'BSol', 'Birmingham', 'Solihull'")
-  }
+  # Check for valid map type and area name
+  check_type_and_area(map_type, area_name)
 
   # Load base shape - to get correct map zoom
   base_path = paste(shape_file_path, "Locality", sep = "")
@@ -146,7 +155,7 @@ plot_base_map <- function(
     "Locality",
     verbose = verbose
   )
-  base_shape <- filter_shape(base_shape, area_name)
+  base_shape <- filter_shape(base_shape, area_name, map_type)
 
   # Load shape data
   shape_path = paste(shape_file_path, map_type, sep = "")
@@ -157,9 +166,8 @@ plot_base_map <- function(
     verbose = verbose
   )
 
-  shape <- filter_shape(shape, area_type, map_type)
+  shape <- filter_shape(shape, area_name, map_type)
   
-
   
   # TODO: Remove this when switching to sf
   if (map_type == "Constituency") {
@@ -169,16 +177,12 @@ plot_base_map <- function(
   }
   
   # join data
-  print(colnames(shape@data))
-  print(colnames(area_data))
-  #print(paste(abbreviate(map_type, 7)[[1]], "-", map_type))
-  
   brum_merged <- merge(shape, 
                        area_data,
                        by = map_type)
   
-  brum_merged@data[is.na(brum_merged@data)] <- 0
-  
+  # Assume missing values are zero
+  # brum_merged@data[is.na(brum_merged@data)] <- 0
   
   #### plot map ####
   map <- tm_shape(base_shape) +
@@ -195,6 +199,102 @@ plot_base_map <- function(
               legend.height = 0.5,
               legend.frame = FALSE,
               inner.margins = 0.08) 
+  
+  return(map)
+}
+
+
+plot_empty_map <- function(
+    map_title = "",
+    area_name = "Birmingham",
+    map_type = "Ward",
+    pallet = "Blues",
+    const_lines = "None",
+    const_names = "None",
+    locality_lines = "None",
+    locality_names = "None",
+    compass = TRUE,
+    credits = "Contains OS data \u00A9 Crown copyright and database right 2020. Source:
+Office for National Statistics licensed under the Open Government Licence v.3.0.",
+    credits_size = 0.6,
+    verbose = FALSE
+) {
+  # Check for valid map type and area name
+  check_type_and_area(map_type, area_name)
+  
+  # Load base shape - to get correct map zoom
+  base_path = paste(shape_file_path, "Locality", sep = "")
+  base_shape <- readOGR(
+    base_path,
+    "Locality",
+    verbose = verbose
+  )
+  base_shape <- filter_shape(base_shape, area_name, map_type)
+  
+  # Load shape data
+  shape_path = paste(shape_file_path, map_type, sep = "")
+  
+  shape <- readOGR(
+    shape_path,
+    map_type,
+    verbose = verbose
+  )
+  
+  print(area_name)
+  shape <- filter_shape(shape, area_name, map_type)
+
+  
+  # TODO: Remove this when switching to sf
+  if (map_type == "Constituency") {
+    colnames(shape@data)[1] = "Constituency"
+  } else if (map_type == "Postal District") {
+    colnames(shape@data)[1] = "Postal District"
+  }
+  
+  #### plot map ####
+  map <- tm_shape(base_shape) +
+    # Invisible base layer to fix map zoom
+    tm_borders(lwd = 0) + 
+    tm_shape(shape) +
+    tm_borders(col = "grey80", lwd = 0.65) +
+    tm_layout(legend.position = c("LEFT", "TOP"),
+              legend.width = 0.5,
+              legend.height = 0.5,
+              legend.frame = FALSE,
+              inner.margins = 0.08) 
+  
+  # Add constituency lines
+  if ( 
+    const_lines %in% c("Yes", TRUE) |
+    (map_type %in% c("Ward", "Constituency", "Postal District", "LSOA11", 
+                     "MSOA11", "LSOA21", "MSOA21") &
+     locality_lines == "None" & 
+     !(const_lines %in% c("No", FALSE))
+    )
+  ) {
+    map <- add_const_lines(map, 
+                           area_name = area_name,
+                           const_names = const_names, 
+                           verbose = verbose)
+  }
+  
+  if (locality_lines %in% c("Yes", TRUE) |
+      (map_type == "Locality")) {
+    map <- add_locality_lines(map, 
+                              area_name = area_name,
+                              locality_names = locality_names, 
+                              verbose = verbose)
+  }
+  
+  # Add compass
+  if (compass %in% c("Yes", TRUE)){
+    map <- add_compass(map)
+  }
+  
+  if (credits != "None") {
+    map <- add_credits(map, credits, 
+                       credits_size = credits_size)
+  }
   
   return(map)
 }
@@ -229,7 +329,6 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
     value_header,
     area_name = area_name,
     map_title = map_title,
-    save_name = save_name,
     map_type = map_type,
     pallet = pallet,
     verbose = verbose
