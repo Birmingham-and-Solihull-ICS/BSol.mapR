@@ -272,6 +272,58 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   return(map)
 }
 
+add_points <- function(
+    map,
+    points_data,
+    size = 0.1,
+    color = "orange",
+    palette = "Dark2"
+) {
+  # If colnames don't include LONG and LAT - Pull from postcode
+  if (
+    ! ("LONG" %in% colnames(points_data) &
+         "LAT" %in% colnames(points_data))
+      ) {
+    # No LONG and LAT so check that Postcode exists
+    if (!"Postcode" %in% colnames(points_data)) {
+      print("Error: Expected column named `Postcode`")
+    } 
+    else {
+      # Load postcode look-up and join
+      points_data <- points_data %>%
+        left_join(
+          arrow::read_parquet(
+            paste(root_path, "../data/WM-Postcodes.parquet", sep = "")
+            ),
+          by = join_by("Postcode")
+        )
+      # Check for postcodes without coords
+      missing_coords <- points_data$Postcode[is.na(points_data$LONG)]
+      if (length(missing_coords) > 0) {
+        print("The following postcodes could not be found.")
+        print(missing_coords)
+      }
+      
+    }
+  } 
+  
+  # Create new shape with high street points
+  point_locs <- SpatialPointsDataFrame(
+    data.frame(points_data$LONG, points_data$LAT),
+    points_data,
+    proj4string=CRS("+proj=longlat +datum=WGS84"))
+  # Update coordinate system
+  point_locs <- spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
+  
+  map <- map +
+    tm_shape(point_locs) +
+    tm_dots(size = size, 
+            col = color,
+            palette = palette)
+  
+  return(map)
+}
+
 save_map <- function(
     map,
     save_name = "new_map.png",
@@ -281,7 +333,7 @@ save_map <- function(
   
   tmap_save(map,
             filename = save_name, 
-            height = height, 
+            height = height,  
             width = weight)
   
   print(paste("Map saved to:", save_name))
