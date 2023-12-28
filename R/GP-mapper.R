@@ -1,5 +1,8 @@
 # GP-mapper
 
+root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
+
+
 usePackage <- function(p) {
   if (!is.element(p, installed.packages()[,1]))
     install.packages(p, dep = TRUE)
@@ -17,7 +20,7 @@ for (lib in base_libs) {
 }
 
 weights_path_21 = paste(root_path, "../data/Brum_ward_info.xlsx", sep = "")
-weights_path_23 = paste(root_path, "../data/BSol_ward_info.xlsx", sep = "")
+weights_path_23 = paste(root_path, "../data/BSol_GP_matricies.xlsx", sep = "")
 
 
 get_locality_data <- function(
@@ -31,7 +34,7 @@ get_locality_data <- function(
     select(-c("Name"))
   
   local_list <- read_excel(
-    weights_path_21,
+    weights_path_23,
     sheet = "ward_list"
   ) %>%
     select("Constituency", 
@@ -110,9 +113,9 @@ GP_weightings <- function(file,
   
   # Load GP weights file
   if (weighting == "Ward") {
-    gpWeights <- read_excel(weights_path_21, sheet = "ward_weighting")
+    gpWeights <- read_excel(weights_path_23, sheet = "ward_weighting")
   } else if (weighting == "Constituency") {
-    gpWeights <- read_excel(weights_path_21, sheet = "const_weighting")
+    gpWeights <- read_excel(weights_path_23, sheet = "const_weighting")
   } else {
     stop("Error: Unexpected weighting")
   }
@@ -120,7 +123,11 @@ GP_weightings <- function(file,
   # Check if all required GPs are there
   check_mask <- GP_data$`Practice Code` %in% gpWeights$`Practice Code`
   if (!all(check_mask)){
-    print("One or more GP codes provided are missing from the conversion matrix.")
+    print(paste(
+      sum(!check_mask),
+      "codes provided are missing from the conversion matrix.", 
+      sep = " ")
+      )
     missingGPs <- GP_data$`Practice Code`[!check_mask]
     if (length(missingGPs) < 10) {
       print(missingGPs) 

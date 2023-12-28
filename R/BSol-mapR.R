@@ -9,7 +9,7 @@
 
 options(warn=-1)
 
-root_path = ""
+root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
 shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
 usePackage <- function(p) {
@@ -184,6 +184,14 @@ plot_base_map <- function(
   # Assume missing values are zero
   # brum_merged@data[is.na(brum_merged@data)] <- 0
   
+  # Turn off borders for LSOA maps
+  if (map_type %in% c("LSOA11", "LSOA21")) {
+    alpha = 0
+    print("Turning off borders")
+  } else {
+    alpha = 1
+  }
+  
   #### plot map ####
   map <- tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
@@ -193,7 +201,7 @@ plot_base_map <- function(
             title = map_title,
             palette = pallet,
             style="pretty") +
-    tm_borders(col = "grey80", lwd = 0.65) +
+    tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
     tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
