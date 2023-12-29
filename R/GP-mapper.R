@@ -1,7 +1,7 @@
 # GP-mapper
 
-root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
-
+#root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
+root_path = ""
 
 usePackage <- function(p) {
   if (!is.element(p, installed.packages()[,1]))

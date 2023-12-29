@@ -9,7 +9,9 @@
 
 options(warn=-1)
 
-root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
+#root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
+root_path = ""
+
 shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
 usePackage <- function(p) {
@@ -31,7 +33,7 @@ for (lib in base_libs) {
 check_type_and_area <- function(map_type, area_name) {
   # Check for valid map type
   if (!(map_type %in% c("Locality", "Constituency", "Ward", "Postal District", 
-                        "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
+                        "Postal Sector", "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
     stop(paste("Error: Unexpected map type. Given `", map_type,"`", sep = ""))
   }
   
@@ -114,10 +116,11 @@ add_compass <- function(map) {
 filter_shape <- function(
     shape, 
     area_name,
-    area_type) {
+    area_type
+    ) {
   
   # Cut the shape file down to the correct area
-  if ((tolower(area_name) == "bsol") | area_type == "Postal District") {
+  if ((tolower(area_name) == "bsol")) {
     # Do nothing
   } else if (tolower(area_name) == "birmingham") {
     # Filter for Birmingham
@@ -128,6 +131,19 @@ filter_shape <- function(
   }
   return(shape)
 }
+
+remove_nas <- function(
+    shape, 
+    value_header
+    ) {
+  # filter shape down to areas we have data for
+  mask <- !is.na(shape@data[[value_header]])
+  shape <- shape[mask,]
+  
+  return(shape)
+}
+
+
 
 add_credits<- function(map, credits, credits_size) {
   map <- map + 
@@ -166,7 +182,7 @@ plot_base_map <- function(
     verbose = verbose
   )
 
-  shape <- filter_shape(shape, area_name, map_type)
+  
   
   
   # TODO: Remove this when switching to sf
@@ -174,6 +190,8 @@ plot_base_map <- function(
     colnames(shape@data)[1] = "Constituency"
   } else if (map_type == "Postal District") {
     colnames(shape@data)[1] = "Postal District"
+  } else if (map_type == "Postal Sector") {
+    colnames(shape@data)[1] = "Postal Sector"
   }
   
   # join data
@@ -181,8 +199,13 @@ plot_base_map <- function(
                        area_data,
                        by = map_type)
   
-  # Assume missing values are zero
-  # brum_merged@data[is.na(brum_merged@data)] <- 0
+  if (map_type %in% c("Postal District", "Postal Sector")) {
+    brum_merged <- remove_nas(brum_merged, value_header)
+  } else {
+    brum_merged <- filter_shape(brum_merged, area_name, map_type)
+  }
+  
+  #print(glimpse(brum_merged@data))
   
   # Turn off borders for LSOA maps
   if (map_type %in% c("LSOA11", "LSOA21")) {
@@ -237,7 +260,9 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
     "Locality",
     verbose = verbose
   )
+  
   base_shape <- filter_shape(base_shape, area_name, map_type)
+
   
   # Load shape data
   shape_path = paste(shape_file_path, map_type, sep = "")
@@ -249,8 +274,10 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   )
   
   print(area_name)
-  shape <- filter_shape(shape, area_name, map_type)
-
+  
+  if (!(map_type %in% c("Postal District", "Postal Sector"))) {
+    shape <- filter_shape(shape, area_name, map_type)
+  } 
   
   # TODO: Remove this when switching to sf
   if (map_type == "Constituency") {
@@ -274,8 +301,8 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   # Add constituency lines
   if ( 
     const_lines %in% c("Yes", TRUE) |
-    (map_type %in% c("Ward", "Constituency", "Postal District", "LSOA11", 
-                     "MSOA11", "LSOA21", "MSOA21") &
+    (map_type %in% c("Ward", "Constituency", "Postal District", "Postal Sector",
+                     "LSOA11", "MSOA11", "LSOA21", "MSOA21") &
      locality_lines == "None" & 
      !(const_lines %in% c("No", FALSE))
     )
@@ -345,8 +372,8 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   # Add constituency lines
   if ( 
     const_lines %in% c("Yes", TRUE) |
-    (map_type %in% c("Ward", "Constituency", "Postal District", "LSOA11", 
-                        "MSOA11", "LSOA21", "MSOA21") &
+    (map_type %in% c("Ward", "Constituency", "Postal District", "Postal Sector",
+                     "LSOA11", "MSOA11", "LSOA21", "MSOA21") &
     locality_lines == "None" & 
     !(const_lines %in% c("No", FALSE))
     )
