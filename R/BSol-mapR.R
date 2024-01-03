@@ -160,7 +160,7 @@ plot_base_map <- function(
     map_type = "Ward",
     pallet = "Blues",
     style = "pretty",
-    breaks = NA,
+    breaks = NULL,
     verbose = FALSE
 ) {
   # Check for valid map type and area name
@@ -347,7 +347,7 @@ plot_map <- function(
     map_title = "",
     pallet = "Blues",
     style = "pretty",
-    breaks = NA,
+    breaks = NULL,
     const_lines = "None",
     const_names = "None",
     locality_lines = "None",
