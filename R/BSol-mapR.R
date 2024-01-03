@@ -5,12 +5,12 @@
 #
 # * Based on 2021 ward weights 
 # TODO: Tidy everything
-# TODO: Calculate new ward conversion matrix
+# TODO: Update Postal District shape file to include all B, WS and CV codes
 
 options(warn=-1)
 
-#root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
-root_path = ""
+root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
+#root_path = ""
 
 shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
@@ -159,6 +159,8 @@ plot_base_map <- function(
     area_name = "Birmingham",
     map_type = "Ward",
     pallet = "Blues",
+    style = "pretty",
+    breaks = NA,
     verbose = FALSE
 ) {
   # Check for valid map type and area name
@@ -220,10 +222,13 @@ plot_base_map <- function(
     # Invisible base layer to fix map zoom
     tm_borders(lwd = 0) + 
     tm_shape(brum_merged) +
-    tm_fill(value_header,
-            title = map_title,
-            palette = pallet,
-            style="pretty") +
+    tm_fill(
+      value_header,
+      title = map_title,
+      palette = pallet,
+      style=style,
+      breaks = breaks
+            ) +
     tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
     tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
@@ -341,6 +346,8 @@ plot_map <- function(
     map_type = "Ward",
     map_title = "",
     pallet = "Blues",
+    style = "pretty",
+    breaks = NA,
     const_lines = "None",
     const_names = "None",
     locality_lines = "None",
@@ -366,6 +373,8 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
     map_title = map_title,
     map_type = map_type,
     pallet = pallet,
+    style = style,
+    breaks = breaks,
     verbose = verbose
   )
   
