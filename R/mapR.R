@@ -51,6 +51,24 @@ check_type_and_area <- function(map_type, area_name) {
   }
 }
 
+load_shape_file <- function(map_type) {
+  # Load lazy loaded shape file
+  shape <- switch(map_type,
+                  "Constituency" = Constituency,
+                  "Locality" = Locality,
+                  "LSOA11" = LSOA11,
+                  "LSOA21" = LSOA21,
+                  "MSOA11" = MSOA11,
+                  "MSOA21" = MSOA21,
+                  "Postal District" = `Postal District`,
+                  "Postal Sector" = `Postal Sector`,
+                  "Ward" = Ward,
+                  stop("Unknown map type.")
+  )
+
+  return(shape)
+}
+
 add_const_lines <- function(
     map,
     area_name = "Birmingham",
@@ -59,12 +77,7 @@ add_const_lines <- function(
 ) {
 
   # TODO: Fix hard coded file path
-  shape_path = paste(shape_file_path, "Constituency", sep = "")
-  constituencies <- readOGR(
-    shape_path,
-    "Constituency",
-    verbose = verbose
-  )
+  constituencies <- load_shape_file("Constituency")
   constituencies <- filter_shape(constituencies, area_name, area_type = "Constituency")
 
   # TODO: Remove this when switching to sf
@@ -89,13 +102,7 @@ add_locality_lines <- function(
     verbose = FALSE
 ) {
 
-  #TODO: Fix hard coded file path
-  shape_path = paste(shape_file_path, "Locality", sep = "")
-  localities <- readOGR(
-    shape_path,
-    "Locality",
-    verbose = FALSE
-  )
+  localities <- load_shape_file("Locality")
   localities <- filter_shape(localities, area_name, area_type = "Locality")
 
   map <- map +
@@ -171,25 +178,13 @@ plot_base_map <- function(
   check_type_and_area(map_type, area_name)
 
   # Load base shape - to get correct map zoom
-  base_path = paste(shape_file_path, "Locality", sep = "")
-  base_shape <- readOGR(
-    base_path,
-    "Locality",
-    verbose = verbose
-  )
+  base_shape <- load_shape_file("Locality")
   base_shape <- filter_shape(base_shape, area_name, map_type)
 
   # Load shape data
   shape_path = paste(shape_file_path, map_type, sep = "")
 
-  shape <- readOGR(
-    shape_path,
-    map_type,
-    verbose = verbose
-  )
-
-
-
+  shape <- load_shape_file(map_type)
 
   # TODO: Remove this when switching to sf
   if (map_type == "Constituency") {
@@ -263,12 +258,7 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   check_type_and_area(map_type, area_name)
 
   # Load base shape - to get correct map zoom
-  base_path = paste(shape_file_path, "Locality", sep = "")
-  base_shape <- readOGR(
-    base_path,
-    "Locality",
-    verbose = verbose
-  )
+  base_shape <- load_shape_file("Locality")
 
   base_shape <- filter_shape(base_shape, area_name, map_type)
 
@@ -276,11 +266,7 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   # Load shape data
   shape_path = paste(shape_file_path, map_type, sep = "")
 
-  shape <- readOGR(
-    shape_path,
-    map_type,
-    verbose = verbose
-  )
+  shape <- load_shape_file(map_type)
 
   print(area_name)
 
