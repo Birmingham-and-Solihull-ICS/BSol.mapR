@@ -219,6 +219,25 @@ plot_base_map <- function(
 }
 
 
+#' Plot Empty Map
+#'
+#' @param map_title Title for the map
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param pallet Colour pallet
+#' @param const_lines Include constituency lines: TRUE/FALSE
+#' @param const_names Include constituency names: TRUE/FALSE
+#' @param locality_lines Include locality lines: TRUE/FALSE
+#' @param locality_names Include locality names: TRUE/FALSE
+#' @param compass Include compass: TRUE/FALSE
+#' @param credits Credit text to be shown at bottom of the map
+#' @param credits_size Credit size
+#' @param verbose Print debugging text
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_empty_map <- function(
     map_title = "",
     area_name = "Birmingham",
@@ -307,6 +326,29 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   return(map)
 }
 
+#' Plot map
+#'
+#' @param data Data frame containing area IDs and plot value
+#' @param value_header Header name for the value to be plotted
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param map_title Title for the map
+#' @param pallet Colour pallet
+#' @param style Colour style: pretty/fixed
+#' @param breaks Value plotting range
+#' @param const_lines Include constituency lines: TRUE/FALSE
+#' @param const_names Include constituency names: TRUE/FALSE
+#' @param locality_lines Include locality lines: TRUE/FALSE
+#' @param locality_names Include locality names: TRUE/FALSE
+#' @param compass Include compass: TRUE/FALSE
+#' @param credits Credit text to be shown at bottom of the map
+#' @param credits_size Credit size
+#' @param verbose Print debugging text
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_map <- function(
     data,
     value_header,
@@ -378,6 +420,18 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   return(map)
 }
 
+#' Add points to map
+#'
+#' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
+#' @param points_data data frame containing LONG and LAT of each point
+#' @param size Point plotting size
+#' @param color Point plotting colour (Set to category column name for variable colour plotting)
+#' @param palette Colour palette
+#'
+#' @return
+#' @export
+#'
+#' @examples
 add_points <- function(
     map,
     points_data,
@@ -428,17 +482,28 @@ add_points <- function(
   return(map)
 }
 
+#' Save map object
+#'
+#' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
+#' @param save_name File save name
+#' @param height Map figure height (inches)
+#' @param width Map figure width (inches)
+#'
+#' @return
+#' @export
+#'
+#' @examples
 save_map <- function(
     map,
     save_name = "new_map.png",
     height = 5,
-    weight = 5
+    width = 5
 ){
 
   tmap::tmap_save(map,
             filename = save_name,
             height = height,
-            width = weight)
+            width = width)
 
   print(paste("Map saved to:", save_name))
 }
