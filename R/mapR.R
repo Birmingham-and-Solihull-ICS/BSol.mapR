@@ -14,25 +14,7 @@ root_path = ""
 
 shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
-# usePackage <- function(p) {
-#   if (!is.element(p, installed.packages()[,1]))
-#     install.packages(p, dep = TRUE)
-#   require(p, character.only = TRUE)
-# }
-#
-# # Load / install libraries
-# base_libs <- c("readxl",
-#                "dplyr",
-#                "writexl",
-#                "sp",
-#                "tmap")
-
-#options("rgdal_show_exportToProj4_warnings"="none")
-
-# for (lib in base_libs) {
-#   # print(paste("Loading:", lib))
-#   usePackage(lib)
-# }
+`%>%` = dplyr::`%>%`
 
 check_type_and_area <- function(map_type, area_name) {
   # Check for valid map type

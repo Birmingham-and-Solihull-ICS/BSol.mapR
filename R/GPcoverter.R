@@ -1,27 +1,11 @@
 # GP-mapper
 
-#root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
 root_path = ""
-
-usePackage <- function(p) {
-  if (!is.element(p, installed.packages()[,1]))
-    install.packages(p, dep = TRUE)
-  require(p, character.only = TRUE)
-}
-
-# Load / install libraries
-base_libs <- c("readxl",
-               "dplyr",
-               "writexl")
-
-for (lib in base_libs) {
-  # print(paste("Loading:", lib))
-  usePackage(lib)
-}
 
 weights_path_21 = paste(root_path, "../data/Brum_ward_info.xlsx", sep = "")
 weights_path_23 = paste(root_path, "../data/BSol_GP_matricies.xlsx", sep = "")
 
+`%>%` = dplyr::`%>%`
 
 get_locality_data <- function(
     df,
@@ -30,36 +14,36 @@ get_locality_data <- function(
   # Convert ward level data frame to constituency or locality level
 
   df <- df %>%
-    mutate("Constituency" = Name) %>%
-    select(-c("Name"))
+    dplyr::mutate("Constituency" = Name) %>%
+    dplyr::select(-c("Name"))
 
-  local_list <- read_excel(
+  local_list <- readxl::read_excel(
     weights_path_23,
     sheet = "ward_list"
   ) %>%
-    select("Constituency",
+    dplyr::select("Constituency",
            "Locality") %>%
-    unique()
+    dplyr::unique()
 
   df <- df %>%
-    left_join(local_list, by = "Constituency")
+    dplyr::left_join(local_list, by = "Constituency")
   #View(df)
 
   if (norm_header == "None") {
     out <- df %>%
-      group_by_("Locality") %>%
-      summarise(
+      dplyr::group_by_("Locality") %>%
+      dplyr::summarise(
         Value = sum(`Value`)
       )
   } else {
     out <- df %>%
-      group_by_("Locality") %>%
-      summarise(
+      dplyr::group_by_("Locality") %>%
+      dplyr::summarise(
         `Normed Value` = norm_output_per*sum(`Value`)/sum(`Norm`),
         Value = sum(`Value`),
         Norm = sum(`Norm`)
       ) %>%
-      select(c("Locality", "Value", "Norm", "Normed Value"))
+      dplyr::select(c("Locality", "Value", "Norm", "Normed Value"))
   }
   return(out)
 }
@@ -91,31 +75,31 @@ GP_weightings <- function(file,
   }
 
   if (is.character(file)) {
-    GP_data <- read_excel(file, sheet = sheet) %>%
-      select(all_of(GP_select_list)) %>%
+    GP_data <- readxl::read_excel(file, sheet = sheet) %>%
+      dplyr::select(all_of(GP_select_list)) %>%
       # Rename columns to make it easier to work with (changed back later)
       rename(`Practice Code` = 1, `Value` = 2)
   } else if (is.data.frame(file)) {
     GP_data <- file %>%
-      select(all_of(GP_select_list)) %>%
+      dplyr::select(all_of(GP_select_list)) %>%
       # Rename columns to make it easier to work with (changed back later)
-      rename(`Practice Code` = 1, `Value` = 2)
+      dplyr::rename(`Practice Code` = 1, `Value` = 2)
   } else {
     print("Error: Unrecognised input data type.")
   }
 
   # If there's a normalisation value, change the name for that too
   if (norm_header != "None"){
-    GP_data = rename(GP_data, `Norm` = 3)
+    GP_data = dplyr::rename(GP_data, `Norm` = 3)
   }
 
   #### Apply GP weights ####
 
   # Load GP weights file
   if (weighting == "Ward") {
-    gpWeights <- read_excel(weights_path_23, sheet = "ward_weighting")
+    gpWeights <- readxl::read_excel(weights_path_23, sheet = "ward_weighting")
   } else if (weighting == "Constituency") {
-    gpWeights <- read_excel(weights_path_23, sheet = "const_weighting")
+    gpWeights <- readxl::read_excel(weights_path_23, sheet = "const_weighting")
   } else {
     stop("Error: Unexpected weighting")
   }
@@ -147,41 +131,41 @@ GP_weightings <- function(file,
     ward_i_weights <- gpWeights %>%
       select(c("Practice Code", sym(ward_i)))
 
-    ward_i_weights=rename(ward_i_weights,
+    ward_i_weights= dplyr::rename(ward_i_weights,
                           ward_i_percs = 2)
 
     ward_i_counts <- ward_i_weights %>%
-      left_join(GP_data,
+      dplyr::left_join(GP_data,
                 by = "Practice Code")
 
     if (norm_header == "None") {
       ward_i_counts <- ward_i_counts %>%
-        mutate(
+        dplyr::mutate(
           `Area Value` = `Value`*ward_i_percs
         ) %>%
-        summarise(
+        dplyr::summarise(
           `Area Value` = sum(`Area Value`, na.rm=TRUE)
         )  %>%
-        mutate(
+        dplyr::mutate(
           Name = all_of(ward_i)
         )
     } else {
       ward_i_counts <- ward_i_counts %>%
-        mutate(
+        dplyr::mutate(
           `Area Value` = `Value`*ward_i_percs,
           `Area Norm` = `Norm`*ward_i_percs
         ) %>%
-        summarise(
+        dplyr::summarise(
           `Area Value` = sum(`Area Value`, na.rm=TRUE),
           `Area Norm` = sum(`Area Norm`, na.rm=TRUE),
           `Area Normed` = norm_output_per*`Area Value`/`Area Norm`
         ) %>%
-        mutate(
+        dplyr::mutate(
           Name = all_of(ward_i)
         )
     }
 
-    areaCounts <- rbind(areaCounts, ward_i_counts)
+    areaCounts <- dplyr::rbind(areaCounts, ward_i_counts)
   }
   areaCounts <- areaCounts %>%
     relocate(Name)
@@ -265,7 +249,7 @@ save_data <- function(
   }
 
   if (extention == "xlsx") {
-    write_xlsx(
+    writexl::write_xlsx(
       data,
       save_path
     )
