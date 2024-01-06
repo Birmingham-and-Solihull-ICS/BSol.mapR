@@ -24,10 +24,10 @@ usePackage <- function(p) {
 base_libs <- c("readxl",
                "dplyr",
                "writexl",
-               "rgdal",
+               "sp",
                "tmap")
 
-options("rgdal_show_exportToProj4_warnings"="none")
+#options("rgdal_show_exportToProj4_warnings"="none")
 
 for (lib in base_libs) {
   # print(paste("Loading:", lib))
@@ -53,17 +53,18 @@ check_type_and_area <- function(map_type, area_name) {
 
 load_shape_file <- function(map_type) {
   # Load lazy loaded shape file
-  shape <- switch(map_type,
-                  "Constituency" = Constituency,
-                  "Locality" = Locality,
-                  "LSOA11" = LSOA11,
-                  "LSOA21" = LSOA21,
-                  "MSOA11" = MSOA11,
-                  "MSOA21" = MSOA21,
-                  "Postal District" = `Postal District`,
-                  "Postal Sector" = `Postal Sector`,
-                  "Ward" = Ward,
-                  stop("Unknown map type.")
+  shape <- switch(
+    map_type,
+    "Constituency" = Constituency,
+    "Locality" = Locality,
+    "LSOA11" = LSOA11,
+    "LSOA21" = LSOA21,
+    "MSOA11" = MSOA11,
+    "MSOA21" = MSOA21,
+    "Postal District" = `Postal District`,
+    "Postal Sector" = `Postal Sector`,
+    "Ward" = Ward,
+    stop("Unknown map type.")
   )
 
   return(shape)
@@ -140,6 +141,7 @@ filter_shape <- function(
     # Filter for Birmingham
     shape <- shape[shape@data$Area == "Solihull",]
   }
+
   return(shape)
 }
 
@@ -155,13 +157,13 @@ remove_nas <- function(
 }
 
 
-
 add_credits<- function(map, credits, credits_size) {
   map <- map +
     tm_credits(credits, size = credits_size,
                position = c(0, 0))
   return(map)
 }
+
 
 plot_base_map <- function(
     area_data,
@@ -196,22 +198,18 @@ plot_base_map <- function(
   }
 
   # join data
-  brum_merged <- merge(shape,
-                       area_data,
-                       by = map_type)
+  shape@data <- shape@data %>%
+    left_join(area_data, by = map_type)
 
   if (map_type %in% c("Postal District", "Postal Sector")) {
-    brum_merged <- remove_nas(brum_merged, value_header)
+    shape <- remove_nas(shape, value_header)
   } else {
-    brum_merged <- filter_shape(brum_merged, area_name, map_type)
+    shape <- filter_shape(shape, area_name, map_type)
   }
-
-  #print(glimpse(brum_merged@data))
 
   # Turn off borders for LSOA maps
   if (map_type %in% c("LSOA11", "LSOA21")) {
     alpha = 0
-    print("Turning off borders")
   } else {
     alpha = 1
   }
@@ -220,7 +218,7 @@ plot_base_map <- function(
   map <- tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
     tm_borders(lwd = 0) +
-    tm_shape(brum_merged) +
+    tm_shape(shape) +
     tm_fill(
       value_header,
       title = map_title,
@@ -267,8 +265,6 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   shape_path = paste(shape_file_path, map_type, sep = "")
 
   shape <- load_shape_file(map_type)
-
-  print(area_name)
 
   if (!(map_type %in% c("Postal District", "Postal Sector"))) {
     shape <- filter_shape(shape, area_name, map_type)
@@ -414,16 +410,14 @@ add_points <- function(
   ) {
     # No LONG and LAT so check that Postcode exists
     if (!"Postcode" %in% colnames(points_data)) {
-      print("Error: Expected column named `Postcode`")
+      stop("Error: Expected column named `Postcode`")
     }
     else {
       # Load postcode look-up and join
       points_data <- points_data %>%
         left_join(
-          arrow::read_parquet(
-            paste(root_path, "../data/WM-Postcodes.parquet", sep = "")
-          ),
-          by = join_by("Postcode")
+          # Lazy loaded postcode data
+          WM_Postcodes
         )
       # Check for postcodes without coords
       missing_coords <- points_data$Postcode[is.na(points_data$LONG)]
