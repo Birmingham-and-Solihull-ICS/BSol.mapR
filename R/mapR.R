@@ -14,25 +14,25 @@ root_path = ""
 
 shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
-usePackage <- function(p) {
-  if (!is.element(p, installed.packages()[,1]))
-    install.packages(p, dep = TRUE)
-  require(p, character.only = TRUE)
-}
-
-# Load / install libraries
-base_libs <- c("readxl",
-               "dplyr",
-               "writexl",
-               "sp",
-               "tmap")
+# usePackage <- function(p) {
+#   if (!is.element(p, installed.packages()[,1]))
+#     install.packages(p, dep = TRUE)
+#   require(p, character.only = TRUE)
+# }
+#
+# # Load / install libraries
+# base_libs <- c("readxl",
+#                "dplyr",
+#                "writexl",
+#                "sp",
+#                "tmap")
 
 #options("rgdal_show_exportToProj4_warnings"="none")
 
-for (lib in base_libs) {
-  # print(paste("Loading:", lib))
-  usePackage(lib)
-}
+# for (lib in base_libs) {
+#   # print(paste("Loading:", lib))
+#   usePackage(lib)
+# }
 
 check_type_and_area <- function(map_type, area_name) {
   # Check for valid map type
@@ -86,11 +86,11 @@ add_const_lines <- function(
 
   # Add lines to map
   map <- map +
-    tm_shape(constituencies) +
-    tm_borders(col = "grey40", lwd = 1.5)
+    tmap::tm_shape(constituencies) +
+    tmap::tm_borders(col = "grey40", lwd = 1.5)
 
   if (const_names %in% c("None", "Yes", TRUE)){
-    map <- map + tm_text(text = "Constituency", size = 0.8)
+    map <- map + tmap::tm_text(text = "Constituency", size = 0.8)
   }
 
   return(map)
@@ -107,11 +107,11 @@ add_locality_lines <- function(
   localities <- filter_shape(localities, area_name, area_type = "Locality")
 
   map <- map +
-    tm_shape(localities) +
-    tm_borders(col = "grey40", lwd = 1.5)
+    tmap::tm_shape(localities) +
+    tmap::tm_borders(col = "grey40", lwd = 1.5)
 
   if (locality_names %in% c("None", "Yes", TRUE)){
-    map <- map + tm_text(text = "Locality", size = 0.6)
+    map <- map + tmap::tm_text(text = "Locality", size = 0.6)
   }
 
   return(map)
@@ -120,7 +120,7 @@ add_locality_lines <- function(
 
 add_compass <- function(map) {
   map <- map +
-    tm_compass(type = "8star", size = 4,
+    tmap::tm_compass(type = "8star", size = 4,
                position = c("RIGHT", "bottom"))
   return(map)
 }
@@ -159,7 +159,7 @@ remove_nas <- function(
 
 add_credits<- function(map, credits, credits_size) {
   map <- map +
-    tm_credits(credits, size = credits_size,
+    tmap::tm_credits(credits, size = credits_size,
                position = c(0, 0))
   return(map)
 }
@@ -199,7 +199,7 @@ plot_base_map <- function(
 
   # join data
   shape@data <- shape@data %>%
-    left_join(area_data, by = map_type)
+    dplyr::left_join(area_data, by = map_type)
 
   if (map_type %in% c("Postal District", "Postal Sector")) {
     shape <- remove_nas(shape, value_header)
@@ -215,19 +215,19 @@ plot_base_map <- function(
   }
 
   #### plot map ####
-  map <- tm_shape(base_shape) +
+  map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tm_borders(lwd = 0) +
-    tm_shape(shape) +
-    tm_fill(
+    tmap::tm_borders(lwd = 0) +
+    tmap::tm_shape(shape) +
+    tmap::tm_fill(
       value_header,
       title = map_title,
       palette = pallet,
       style=style,
       breaks = breaks
     ) +
-    tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
-    tm_layout(legend.position = c("LEFT", "TOP"),
+    tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
+    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
               legend.frame = FALSE,
@@ -278,12 +278,12 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
   }
 
   #### plot map ####
-  map <- tm_shape(base_shape) +
+  map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tm_borders(lwd = 0) +
-    tm_shape(shape) +
-    tm_borders(col = "grey80", lwd = 0.65) +
-    tm_layout(legend.position = c("LEFT", "TOP"),
+    tmap::tm_borders(lwd = 0) +
+    tmap::tm_shape(shape) +
+    tmap::tm_borders(col = "grey80", lwd = 0.65) +
+    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
               legend.frame = FALSE,
@@ -345,7 +345,7 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
     verbose = FALSE
 ) {
 
-  tmap_options(show.messages = verbose)
+  tmap::tmap_options(show.messages = verbose)
 
   map <- plot_base_map(
     data,
@@ -438,8 +438,8 @@ add_points <- function(
   point_locs <- spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
 
   map <- map +
-    tm_shape(point_locs) +
-    tm_dots(size = size,
+    tmap::tm_shape(point_locs) +
+    tmap::tm_dots(size = size,
             col = color,
             palette = palette)
 
@@ -453,7 +453,7 @@ save_map <- function(
     weight = 5
 ){
 
-  tmap_save(map,
+  tmap::tmap_save(map,
             filename = save_name,
             height = height,
             width = weight)
