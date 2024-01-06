@@ -466,12 +466,12 @@ add_points <- function(
   }
 
   # Create new shape with high street points
-  point_locs <- SpatialPointsDataFrame(
+  point_locs <- sp::SpatialPointsDataFrame(
     data.frame(points_data$LONG, points_data$LAT),
     points_data,
     proj4string=CRS("+proj=longlat +datum=WGS84"))
   # Update coordinate system
-  point_locs <- spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
+  point_locs <- sp::spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
 
   map <- map +
     tmap::tm_shape(point_locs) +
