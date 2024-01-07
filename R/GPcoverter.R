@@ -1,10 +1,3 @@
-# GP-mapper
-
-root_path = ""
-
-weights_path_21 = paste(root_path, "../data/Brum_ward_info.xlsx", sep = "")
-weights_path_23 = paste(root_path, "../data/BSol_GP_matricies.xlsx", sep = "")
-
 `%>%` = dplyr::`%>%`
 
 get_locality_data <- function(
@@ -17,16 +10,18 @@ get_locality_data <- function(
     dplyr::mutate("Constituency" = Name) %>%
     dplyr::select(-c("Name"))
 
-  local_list <- readxl::read_excel(
-    weights_path_23,
-    sheet = "ward_list"
-  ) %>%
-    dplyr::select("Constituency",
-           "Locality") %>%
-    dplyr::unique()
+  # Define data frame of BSol constituencies and their locality
+  locality_list <- data.frame(
+    Locality = c("East", "East", "West", "West",
+                 "Central","Central","North", "North",
+                 "South", "South", "Solihull", "Solihull"),
+    Constituency = c("Hodge Hill", "Yardley","Ladywood", "Perry Barr",
+                     "Selly Oak",  "Hall Green","Erdington",  "Sutton Coldfield",
+                     "Northfield", "Edgbaston", "Solihull", "Meriden")
+  )
 
   df <- df %>%
-    dplyr::left_join(local_list, by = "Constituency")
+    dplyr::left_join(locality_list, by = "Constituency")
   #View(df)
 
   if (norm_header == "None") {
@@ -48,13 +43,12 @@ get_locality_data <- function(
   return(out)
 }
 
-GP_weightings <- function(file,
+GP_weightings <- function(data,
                           GP_code_header,
                           value_header,
                           norm_header = "None",
                           weighting = "Ward",
-                          norm_output_per = 100,
-                          sheet = 1) {
+                          norm_output_per = 100) {
 
   # make list of column headers to extract from GP data
   if (norm_header == "None") {
@@ -74,19 +68,10 @@ GP_weightings <- function(file,
     ncol <- 4
   }
 
-  if (is.character(file)) {
-    GP_data <- readxl::read_excel(file, sheet = sheet) %>%
-      dplyr::select(all_of(GP_select_list)) %>%
-      # Rename columns to make it easier to work with (changed back later)
-      rename(`Practice Code` = 1, `Value` = 2)
-  } else if (is.data.frame(file)) {
-    GP_data <- file %>%
-      dplyr::select(all_of(GP_select_list)) %>%
-      # Rename columns to make it easier to work with (changed back later)
-      dplyr::rename(`Practice Code` = 1, `Value` = 2)
-  } else {
-    print("Error: Unrecognised input data type.")
-  }
+  GP_data <- data %>%
+    dplyr::select(all_of(GP_select_list)) %>%
+    # Rename columns to make it easier to work with (changed back later)
+    dplyr::rename(`Practice Code` = 1, `Value` = 2)
 
   # If there's a normalisation value, change the name for that too
   if (norm_header != "None"){
@@ -97,9 +82,9 @@ GP_weightings <- function(file,
 
   # Load GP weights file
   if (weighting == "Ward") {
-    gpWeights <- readxl::read_excel(weights_path_23, sheet = "ward_weighting")
+    gpWeights <- GP_Ward
   } else if (weighting == "Constituency") {
-    gpWeights <- readxl::read_excel(weights_path_23, sheet = "const_weighting")
+    gpWeights <- GP_Constituency
   } else {
     stop("Error: Unexpected weighting")
   }
@@ -165,7 +150,7 @@ GP_weightings <- function(file,
         )
     }
 
-    areaCounts <- dplyr::rbind(areaCounts, ward_i_counts)
+    areaCounts <- rbind(areaCounts, ward_i_counts)
   }
   areaCounts <- areaCounts %>%
     relocate(Name)
@@ -179,14 +164,26 @@ GP_weightings <- function(file,
   return(areaCounts)
 }
 
+#' Title
+#'
+#' @param data data frame containing GP-level data
+#' @param GP_code_header Column header for GP Code (e.g. M81062)
+#' @param value_header Column header for variable of interest
+#' @param to Area type to convert to (Ward/Constituency/Locality)
+#' @param norm_header Column header for normalisation values
+#' @param norm_output_per Normalisation level (e.g. per 100, per 1000)
+#'
+#' @return
+#' @export
+#'
+#' @examples
 convert_GP_data <- function(
-    file,
+    data,
     GP_code_header,
     value_header,
     to = "Ward",
     norm_header = "None",
-    norm_output_per = 100,
-    sheet = 1
+    norm_output_per = 100
 ) {
 
   if (to %in% c("Ward","Constituency")) {
@@ -198,13 +195,12 @@ convert_GP_data <- function(
   }
 
   # Get ward/constituency values
-  area_data <- GP_weightings(file,
+  area_data <- GP_weightings(data,
                              GP_code_header,
                              value_header,
                              norm_header = norm_header,
                              norm_output_per = norm_output_per,
-                             weighting = weighting,
-                             sheet = sheet)
+                             weighting = weighting)
 
   if (to == "Locality") {
     # aggregate to ward (do nothing), constituency or locality
