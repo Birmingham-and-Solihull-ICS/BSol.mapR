@@ -14,12 +14,10 @@ load_data_file <- function(
 
   if (extention == "csv"){
     data <- read.csv(
-      data,
       file_path,
       row.names=FALSE)
   } else if (extention %in% c("xls", "xlsx")) {
     data <- readxl::read_excel(
-      data,
       file_path,
       sheet = sheet
     )
