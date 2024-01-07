@@ -228,26 +228,4 @@ convert_GP_data <- function(
 
 }
 
-save_data <- function(
-    data,
-    save_path = "map_data.xlsx"
-) {
-  extention <- strsplit(x = (save_path), split = "\\.")[[1]][[2]]
-  if (! (extention %in% c("xlsx", "csv") )) {
-    stop("Error:file_type must be either 'xlsx' or 'csv'.")
-  }
 
-  if (extention == "csv"){
-    write.csv(
-      data,
-      save_path,
-      row.names=FALSE)
-  }
-
-  if (extention == "xlsx") {
-    writexl::write_xlsx(
-      data,
-      save_path
-    )
-  }
-}
