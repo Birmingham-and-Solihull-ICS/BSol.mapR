@@ -1,18 +1,4 @@
-# GP-to-ward map generator
-#
-# This module uses GP data to estimate the ward-level distribution of health
-# outcomes. This data can then be plotted as a heat map.
-#
-# * Based on 2021 ward weights
-# TODO: Tidy everything
-# TODO: Update Postal District shape file to include all B, WS and CV codes
-
 options(warn=-1)
-
-#root_path = "C:/Users/TMPCDDES/OneDrive - Birmingham City Council/Documents/Main work/MiscCode/BSol-mapR/R/"
-root_path = ""
-
-shape_file_path = paste(root_path, "../data/Shape Files/", sep = "")
 
 `%>%` = dplyr::`%>%`
 
@@ -59,11 +45,10 @@ add_const_lines <- function(
     verbose = FALSE
 ) {
 
-  # TODO: Fix hard coded file path
   constituencies <- load_shape_file("Constituency")
   constituencies <- filter_shape(constituencies, area_name, area_type = "Constituency")
 
-  # TODO: Remove this when switching to sf
+  # TODO: Update lazy loaded data to prevent this
   colnames(constituencies@data)[1] = "Constituency"
 
   # Add lines to map
@@ -165,12 +150,9 @@ plot_base_map <- function(
   base_shape <- load_shape_file("Locality")
   base_shape <- filter_shape(base_shape, area_name, map_type)
 
-  # Load shape data
-  shape_path = paste(shape_file_path, map_type, sep = "")
-
   shape <- load_shape_file(map_type)
 
-  # TODO: Remove this when switching to sf
+  # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
     colnames(shape@data)[1] = "Constituency"
   } else if (map_type == "Postal District") {
@@ -261,17 +243,13 @@ Office for National Statistics licensed under the Open Government Licence v.3.0.
 
   base_shape <- filter_shape(base_shape, area_name, map_type)
 
-
-  # Load shape data
-  shape_path = paste(shape_file_path, map_type, sep = "")
-
   shape <- load_shape_file(map_type)
 
   if (!(map_type %in% c("Postal District", "Postal Sector"))) {
     shape <- filter_shape(shape, area_name, map_type)
   }
 
-  # TODO: Remove this when switching to sf
+  # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
     colnames(shape@data)[1] = "Constituency"
   } else if (map_type == "Postal District") {
@@ -469,7 +447,7 @@ add_points <- function(
   point_locs <- sp::SpatialPointsDataFrame(
     data.frame(points_data$LONG, points_data$LAT),
     points_data,
-    proj4string=CRS("+proj=longlat +datum=WGS84"))
+    proj4string= sp::CRS("+proj=longlat +datum=WGS84"))
   # Update coordinate system
   point_locs <- sp::spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
 
