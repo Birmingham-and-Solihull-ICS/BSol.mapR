@@ -6,7 +6,7 @@
 #' @return data frame containing loaded data
 #' @export
 
-load_data <- function(
+load_data_file <- function(
     file_path = "output_data.xlsx",
     sheet = 1
 ) {
@@ -37,7 +37,7 @@ load_data <- function(
 #' @param save_path Save file name and path
 #'
 #' @export
-save_data <- function(
+save_data_file <- function(
     data,
     save_path = "output_data.xlsx"
 ) {
