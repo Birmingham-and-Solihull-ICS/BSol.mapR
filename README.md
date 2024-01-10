@@ -327,7 +327,7 @@ map <- plot_map(
 # add points
 map <- add_points(
   map,
-  points
+  points_data
 )
 
 # Save as vector image
@@ -365,7 +365,7 @@ map <- plot_empty_map(
 # Add points with groups
 map <- add_points(
   map,
-  points,
+  points_data,
   color = "Group"
 )
 
