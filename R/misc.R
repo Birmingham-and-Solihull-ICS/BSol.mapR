@@ -10,7 +10,9 @@ load_data_file <- function(
     file_path = "output_data.xlsx",
     sheet = 1
 ) {
-  extention <- strsplit(x = (file_path), split = "\\.")[[1]][[2]]
+
+  split_name <- strsplit(x = file_path, split = "\\.")[[1]]
+  extention <- split_name[length(split_name)]
 
   if (extention == "csv"){
     data <- read.csv(
@@ -40,7 +42,8 @@ save_data_file <- function(
     save_path = "output_data.xlsx"
 ) {
 
-  extention <- strsplit(x = (save_path), split = "\\.")[[1]][[2]]
+  split_name <- strsplit(x = save_path, split = "\\.")[[1]]
+  extention <- split_name[length(split_name)]
 
   if (extention == "csv"){
 
