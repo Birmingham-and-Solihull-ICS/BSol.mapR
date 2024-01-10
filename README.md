@@ -209,7 +209,7 @@ plot_map(
 <img src="data/readme-images/map-colours.svg" alt="Example of a constituency-level map with a title and custom colour palette produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a constituency-level map with a title and custom colour
-paletteproduced by `BSol.mapR` from randomly generated data.
+palette produced by `BSol.mapR` from randomly generated data.
 </p>
 
 </div>
@@ -299,7 +299,7 @@ Example of a ward-level with the compass turned off. Produced by
 BSol.mapR also has the ability to overlay points onto your map using the `add_points()` function. This function takes the following basic arguments:
 1.  `map`: Map object returned from plot_map(), plot_empty_map() or add_points()
 2.  `points_data`: data frame containing LONG and LAT of each point
-3. `color`: point colour (default = `"orange"`). Note: the argument name is spelled using the <i>American</i> spelling for colour.
+3. `color`: point colour (default = `"orange"`). Note: the argument name is spelt  using the <i>American</i> spelling for colour.
 
 We can load our spreadsheet containing the points to be plotted using `load_data_file()` as before. However, this file must contain the column headers `"LONG"` (longitude) and `LAT` (latitude). The data might look something like this:
 
@@ -345,9 +345,11 @@ Example of an LSOA-level map with geographical locations plotted on top. Produce
 
 ### Groups of objects on an empty map
 
-Sometimes we will want to plot the locations of things on top of an empty map rather than a heat map. For this we can use the function `plot_empty_map()`. This function takes all the same arguments as `plot_map()` except those relating to data.
+Sometimes we will want to plot the locations of things on top of an empty map rather than a heat map. For this, we can use the function `plot_empty_map()`. This function takes all the same arguments as `plot_map()` except those relating to data.
 
-Additionally, we can colour code the points based on some group to which they belong. In the example data above, we see that each point has a group number under the column "Group". We can tell the `add_points()` function to colour the points based on these groups by setting `color = "Group"`
+Additionally, we can colour code the points based on some group to which they belong. In the example data above, we see that each point has a group number under the column "Group". We can tell the `add_points()` function to colour the points based on these groups by setting `color = "Group"`.
+
+Both of these features are presented in the example below.
 
 ```r
 library(BSol.mapR)
