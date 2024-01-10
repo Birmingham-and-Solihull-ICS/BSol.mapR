@@ -118,6 +118,8 @@ To save as an image, we have to first store our produced map as a variable.
 This is done using the `<-` operator. We can then give our stored
 map to the `save_map()` function as shown below.
 
+Maps can be saved using all major image types including "png" and "jpg". However, it is recommended to a vector formats such as "svg". These formats are still compatible with products such as Microsoft Word and PowerPoint. However, since they are vector images, they maintain their quality at all levels of magnification.
+
 ```r
 # Plot the map
 map <- plot_map(
@@ -130,7 +132,7 @@ map <- plot_map(
 # save the map
 save_map(
     map,
-    save_name = "new_map.png"
+    save_name = "new_map.svg"
 )
 
 ```
@@ -175,7 +177,7 @@ information about R’s colour palettes
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/colour-palettes.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: [DataNovia](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)." width="50%" />
+<img src="data/readme-images/colour-palettes.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: DataNovia)." width="400px" />
 <p class="caption">
 Some of the sequential (top) and diverging (bottom) colour maps that are
 preprogrammed into R. Source:
@@ -292,7 +294,93 @@ Example of a ward-level with the compass turned off. Produced by
 
 </div>
 
-### Converting GP data
+## Adding points
+
+BSol.mapR also has the ability to overlay points onto your map using the `add_points()` function. This function takes the following basic arguments:
+1.  `map`: Map object returned from plot_map(), plot_empty_map() or add_points()
+2.  `points_data`: data frame containing LONG and LAT of each point
+3. `color`: point colour (default = `"orange"`). Note: the argument name is spelled using the <i>American</i> spelling for colour.
+
+We can load our spreadsheet containing the points to be plotted using `load_data_file()` as before. However, this file must contain the column headers `"LONG"` (longitude) and `LAT` (latitude). The data might look something like this:
+
+<div class="figure" style="text-align: center">
+
+<img src="data/readme-images/points-data-example.PNG" alt="Example data set geographical locations with longitude and latitude. These postcodes have been randomly selected and do not reflect any real data." width="400px" />
+</div>
+
+A full example is shown below.
+
+```r
+library(BSol.mapR)
+
+# Load data
+ward_data <- load_data_file("data/myWardData.csv")
+points_data <- load_data_file("data/myPointsData.csv")
+
+# plot base map
+map <- plot_map(
+  data = data,
+  value_header = "Cases",
+  map_type = "LSOA11"
+)
+
+# add points
+map <- add_points(
+  map,
+  points
+)
+
+# Save as vector image
+save_map(map, "map-with-points.svg")
+```
+
+<div class="figure" style="text-align: center">
+
+<img src="data/readme-images/map-points1.svg" alt="Example of an LSOA-level map with geographical locations plotted on top." width="50%" />
+<p class="caption">
+Example of an LSOA-level map with geographical locations plotted on top. Produced by `BSol.mapR` from randomly generated data.
+</p>
+
+</div>
+
+### Groups of objects on an empty map
+
+Sometimes we will want to plot the locations of things on top of an empty map rather than a heat map. For this we can use the function `plot_empty_map()`. This function takes all the same arguments as `plot_map()` except those relating to data.
+
+Additionally, we can colour code the points based on some group to which they belong. In the example data above, we see that each point has a group number under the column "Group". We can tell the `add_points()` function to colour the points based on these groups by setting `color = "Group"`
+
+```r
+library(BSol.mapR)
+
+# Load data
+points_data <- load_data_file("data/myPointsData.csv")
+
+# plot base map
+map <- plot_empty_map(
+  map_type = "Locality"
+)
+
+# Add points with groups
+map <- add_points(
+  map,
+  points,
+  color = "Group"
+)
+
+# Save as vector image
+save_map(map, "grouped-points.svg")
+```
+
+<div class="figure" style="text-align: center">
+
+<img src="data/readme-images/map-points2.svg" alt="Example of an empty BSol map with grouped geographical locations plotted on top. Produced by `BSol.mapR` from randomly generated data." width="50%" />
+<p class="caption">
+Example of an empty BSol map with grouped geographical locations plotted on top. Produced by `BSol.mapR` from randomly generated data.
+</p>
+
+</div>
+
+## Converting GP data
 
 Within Public Health we often work a lot with data where we have a
 number for each GP. However, it can be difficult to draw out any wider
@@ -316,11 +404,8 @@ use and any others will be ignored.
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/example_data_1.png" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="70%" />
-<p class="caption">
-Example data set of the number of ‘Cases’ for each GP. This data is
-randomly generated and does not reflect any real data.
-</p>
+<img src="data/readme-images/example_data_1.PNG" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="400px" />
+
 
 </div>
 

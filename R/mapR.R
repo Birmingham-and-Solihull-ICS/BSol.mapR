@@ -222,7 +222,7 @@ plot_base_map <- function(
 #' @examples
 plot_empty_map <- function(
     map_title = "",
-    area_name = "Birmingham",
+    area_name = "BSol",
     map_type = "Ward",
     pallet = "Blues",
     const_lines = "None",
@@ -295,10 +295,19 @@ plot_empty_map <- function(
     map <- add_compass(map)
   }
 
-  if (credits != "None") {
+  if (credits != FALSE) {
+    if (credits == "default") {
+      # Set credits to default
+      credits <- paste("Contains OS data \u00A9 Crown copyright and database right",
+                       # Get current year
+                       format(Sys.Date(), "%Y"),
+                       ". Source:\nOffice for National Statistics licensed under the Open Government Licence v.3.0."
+      )
+    }
     map <- add_credits(map, credits,
                        credits_size = credits_size)
   }
+
 
   return(map)
 }
