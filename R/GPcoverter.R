@@ -114,7 +114,7 @@ GP_weightings <- function(data,
   # Loop over all wards to sum contributions from each GP
   for (ward_i in allWardNames) {
     ward_i_weights <- gpWeights %>%
-      select(c("Practice Code", sym(ward_i)))
+      dplyr::select(c("Practice Code", sym(ward_i)))
 
     ward_i_weights= dplyr::rename(ward_i_weights,
                           ward_i_percs = 2)
