@@ -1,153 +1,91 @@
-BSol-mapR
-================
-David Ellis
-Last Updated: 2023-04-25
+---
+title: "BSol.mapR"
+author: "David Ellis - BCC PHM"
+date: "10/01/2024"
+---
 
 ## Introduction
 
-### What is `BSol-mapR`?
+### What is BSol.mapR?
 
-Within Public Health we often work a lot with data where we have a
-number for each GP. However, it can be difficult to draw out any wider
-geographical trends from these single data points. We therefore often
-want to convert this GP-level data into ward, constituency or
-locality-level data. This data is then much easier to visualise as a
-choropleth map (often called a heat map).
-
-`BSol-mapR` is an R module designed to automatically convert GP-level
-counts to a ward, constituency or locality level, and produce
-customisable choropleth maps, such as that shown below. We can show
-numbers in both their raw and normalised form (for example total number
-of cases vs. cases per 1000 registered patients).
+BSol.mapR is an R package designed to make plotting heat maps for Birmingham and Solihull such as the one below as easy as possible. The package supports all major geographies from LSOA to Locality and includes code for estimating Ward, Constituency and Locality values from GP-level data.
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme1.png" alt="BSol-mapR example using randomly generated data" width="50%" />
+<img src="data/readme-images/showcase-map.svg" alt="BSol.mapR example using randomly generated data" width="50%" />
 <p class="caption">
-BSol-mapR example using randomly generated data
+BSol.mapR example using randomly generated data
 </p>
 
 </div>
 
-## `BSol-mapR` basics
+## BSol.mapR basics
 
-### Loading BSol-mapR
+### Installing BSol.mapR
 
-All of the code and geometries are stored on the shared drive
-`publichealth$`. To load the module, all you have to do is tell R where
-to find it. This is done using `source()` as follows.
+The package is used in the same way as any other R package you might be familiar with. However, the installation uses a slightly different function. We can install the package directly from GitHub by typing the following command into the RStudio console:
 
 ``` r
-source("BSol-mapR.R")
+devtools::install_github("David-Ellis/BSol.mapR")
 ```
 
-### Aggregating data
+`BSol.mapR` will automatically download any missing prerequisite
+libraries so this may take a few minutes the first time running it on
+your machine.
 
-Next, we need some GP-level data, for example from
-[FingerTips](https://fingertips.phe.org.uk/). As a minimum, the data
-must have a column containing the GP practice codes and the values you
-want to aggregate as shown in the example below. Don’t worry if you have
-additional columns. We will tell the BSol-mapR which columns we want to
-use and any others will be ignored.
+### Loading BSol.mapR
 
-<div class="figure" style="text-align: center">
-
-<img src="data/readme-images/example_data_1.png" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="70%" />
-<p class="caption">
-Example data set of the number of ‘Cases’ for each GP. This data is
-randomly generated and does not reflect any real data.
-</p>
-
-</div>
-
-We aggregate this data using the function `convert_GP_data()`. At a
-minimum, this function takes:
-
-1.  `file`: The path to your GP-level data or your preloaded dataframe
-2.  `GP_code_header`: The name of the GP code column (Here it’s
-    `"Practice Code"`)
-3.  `value_header`: The value you want to aggregate (Here it’s
-    `"Cases"`)
-
-Our code now looks like this:
+Once installed, you can open a new file by clicking the icon in the top left corner of RStudio underneath "file". In this new script, you can load the library at the start of a new R script using the following function. 
 
 ``` r
-source("BSol-mapR.R")
-
-data <- convert_GP_data(
-  file = "example_data.xlsx",
-  GP_code_header = "Practice Code",
-  value_header = "Cases"
-)
+library("BSol.mapR")
 ```
 
 You can run this code by either highlighting the code and clicking `Run`
 or by pressing `Ctrl` + `Alt` + `R`.
 
-`BSol-mapR` will automatically download any missing prerequisite
-libraries so this may take a few minutes the first time running it on
-your machine.
+### Setting your working directory
 
-As a default, `convert_GP_data()` will load the first sheet of the
-provided excel spreadsheet and convert our GP data to a ward-level.
+Before we get R to find any data, we need to tell it where to start looking from. Save your new script somewhere, and tell R to make this place your <i>working directory</i> by right-clicking the tab with your script name as shown below:
 
-We can load different sheets by providing another variable `sheets`
-either to the sheet name or number. Additionally, we can change the
-aggregation level by setting `to` equal to `"Constituency"` or
-`"Locality"`. Both of these are shown in the example below.
+<div class="figure" style="text-align: center">
 
-``` r
-source("BSol-mapR.R")
+<img src="data/readme-images/set_working_directory.png" alt="Setting your working directory." width="50%" />
+<p class="caption">
+Setting your working directory.
+</p>
 
-data <- convert_GP_data(
-  file = "example_data.xlsx",
-  GP_code_header = "Practice Code",
-  value_header = "Cases",
-  sheet = "GP data",
-  to = "Locality"
-)
-```
+</div>
 
-We will cover how to include a normalising value, such as population
-size, later.
+### Loading data
 
-### Saving the data
+To load data from Excel, we normally have to install and load additional R packages. However, BSol.mapR is set up to deal with this automatically. We can load xlsx, xls, and csv files using the `load_data_file()`. The function function takes the following arguments:
 
-To save this data, for example, if you want to present it in PowerBI
-instead of plotting it in R, we use `save_data()` function.
+1.  `file_path`:  path to the data file you want to load
+2.  `sheet`: (Optional) The name or number of the Excel tab containing (default = `1`)
 
-This takes:
 
-1.  `data`: the outputted data from `convert_GP_data()`
-2.  `save_path`: path to where the data should be saved (default =
-    `"map_data.xlsx"`)
-
-Note that the file extension must be either `".xlsx"` or `".csv"`.
-
-We can then add the following to the bottom of our example code and run
-as before:
+An example of how this function is used is shown below.
 
 ``` r
-save_data(
-    data,
-    save_path = "my_ward_data.xlsx"
-) 
+data <- load_data_file(
+  "data/my_data.xlsx",
+  sheet = "data"
+  )
 ```
 
-Notice that if we open this new file we will see that the aggregated
-values have the same column header as before.
+Your data must start in the top left-hand corner of the spreadsheet (cell A1). Any titles or empty cells above the data table will confuse R and prevent it from loading your data correctly.
 
-### Plotting choropleth map
+### Plotting a heat map
 
-Finally, we can plot this data as a map using `plot_map()`. The function
-takes:
+Finally, we can plot this data as a map using `plot_map()`. The function takes
+the following basic arguments:
 
-1.  `data`: the outputted data from `convert_GP_data()`
+1.  `data`: data frame output from `load_data_file()` or `convert_GP_data()`
 2.  `value_header`: the name of the data column to be plotted (here:
     `"Cases"`)
-3.  `map_type`: Set to `"Ward"`, `"Constituency"` or `"Locality"`
-    (Default = `"Ward"`)
-4.  `save_name`: Path to save the map to (Default = `"new_map.png"`)
+3.  `map_type`: Geography type to be plotted. Can be any of the following: "Ward", "Constituency", "Postal District", "Postal Sector", "LSOA11", "MSOA11", "LSOA21", "MSOA21".
+4.  `area_name`: (Optional) The area you want to plot - BSol, Solihull, or Birmingham (Default = `"BSol"`)
 
 Therefore, we can generate a basic map by running:
 
@@ -156,7 +94,7 @@ Therefore, we can generate a basic map by running:
     data,
     value_header = "Cases",
     map_type = "Ward",
-    save_name = "my_ward_map.png"
+    area_name = "Birmingham"
     )
 ```
 
@@ -164,80 +102,35 @@ This produces a map that looks like this:
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme2.png" alt="Example of a basic map produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/basic.svg" alt="Example of a basic map produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
-Example of a basic map produced by `BSol-mapR` from randomly generated
+Example of a basic map produced by `BSol.mapR` from randomly generated
 data.
 </p>
 
 </div>
 
-There are some ways that we can customise this map that we will cover
-later.
+### Saving the map
 
-## Normalising Data
+To save as an image, we have to first store our produced map as a variable. 
+This is done using the `<-` operator. We can then give our stored
+map to the `save_map()` function as shown below.
 
-### Why normalise?
-
-Different wards can have very different population sizes. For example,
-the 2011 census recorded that the Ladywood ward had 22,259 residents
-while Lozells had only 9153. Therefore, it is often inappropriate to
-compare the raw numbers of cases/conditions between different areas.
-
-We may instead want to normalise the counts by the size of the relevant
-population. This will often be the total number of residents, however,
-at times we might find it more appropriate to use a more specific
-reference population. For example, if we’re investigating the rates of
-teenage pregnancy it would probably be best to look at the number of
-cases per X the number of teenage girls.
-
-### Normalising with `BSol-mapR`
-
-Fortunately, normalising data with `BSol-mapR` is easy. All we have to
-do is add a new argument `norm_header` to `convert_GP_data()` with the
-name of the column variable that contains our denominator.
-
-As a default, `convert_GP_data()` will calculate the normalised number
-as a percentage, i.e. $100*value/norm$ or the number of cases *per 100*
-of the reference population. To change this we can set the
-`norm_output_per` value. For example, if we wanted the count per 1000 of
-the population we would set `norm_output_per = 1000` as shown in the
-example below.
-
-``` r
-source("BSol-mapR.R")
-
-data <- convert_GP_data(
-  file = "example_data.xlsx",
-  GP_code_header = "Practice Code",
-  value_header = "Cases",
-  norm_header = "Registered Patients",
-  norm_output_per = 1000
-)
-```
-
-If we save this data using `save_data()` we see that the new column name
-is a combination of our `value_header`, `norm_output_per` and
-`norm_header`. Specifically it’s “`value_header` per `norm_output_per`
-`norm_header`”
-
-This is important since we need to know the column header to plot the
-normalised data. You can also check the column names by running
-`colnames(data)` or simply saving the data and opening the data excel.
-
-### Plotting normalised data
-
-Plotting the data works the same as before except we give `plot_map()`
-our new column header. In the case of the example above, our code would
-look as follows:
-
-``` r
-  plot_map(
+```r
+# Plot the map
+map <- plot_map(
     data,
-    value_header = "Cases per 1000 Registered Patients",
+    value_header = "Cases",
     map_type = "Ward",
-    save_name = "my_ward_map.png"
+    area_name = "Birmingham"
     )
+
+# save the map
+save_map(
+    map,
+    save_name = "new_map.png"
+)
+
 ```
 
 ## Customising your map
@@ -254,33 +147,33 @@ below.
   plot_map(
     data,
     value_header = "Cases per 1000 children",
-    map_type = "Ward",
-    save_name = "fairy_map.png",
+    area_name = "Solihull"
+    map_type = "LSOA21",
     map_title = "Number of tooth-fairy visits\nper 1000 children"
     )
 ```
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme3.png" alt="Example of multi-line title produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/map-title.svg" alt="Example of multi-line title produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
-Example of multi-line title produced by `BSol-mapR` from randomly
+Example of multi-line title produced by `BSol.mapR` from randomly
 generated data.
 </p>
 
 </div>
 
-### Colour pallet
+### Colour palette
 
-We can also change the colour pallet by setting the `pallet` argument.
-The default is set to `"Blues"` but there are many other colour pallets
+We can also change the colour palette by setting the `palette` argument.
+The default is set to `"Blues"` but there are many other colour palettes
 pre-programmed into R including those shown below. You can find more
-information about R’s colour pallets
+information about R’s colour palettes
 [here](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/).
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/colour-pallets.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: [DataNovia](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)." width="50%" />
+<img src="data/readme-images/colour-palettes.png" alt="Some of the sequential (top) and diverging (bottom) colour maps that are preprogrammed into R. Source: [DataNovia](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)." width="50%" />
 <p class="caption">
 Some of the sequential (top) and diverging (bottom) colour maps that are
 preprogrammed into R. Source:
@@ -291,7 +184,7 @@ preprogrammed into R. Source:
 
 When choosing a colour map, it is worth taking some time to consider
 accessibility for colour-blind readers. It is best practice to choose a
-perceptually uniform colour pallet whenever possible. Additionally, if
+perceptually uniform colour palette whenever possible. Additionally, if
 your map includes constituency or locality names, it might be worth
 using an [online contrast
 checker](https://webaim.org/resources/contrastchecker/?fcolor=0000FF&bcolor=FFFFFF)
@@ -299,38 +192,36 @@ to determine how easy the text is to read.
 
 ``` r
 plot_map(
-  data = agg_data,
+  data = data,
   value_header = "Cases per 1000 Villa fans",
-  save_name = "zombie_map.png",
   map_type = "Constituency",
   map_title = "Number of zombie outbreaks\nper 1000 Villa fans",
-  pallet = "RdPu"
+  palette= "RdPu"
 )
 ```
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme4.png" alt="Example of a constituency-level map with a title and custom colour pallet produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/map-colours.svg" alt="Example of a constituency-level map with a title and custom colour palette produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a constituency-level map with a title and custom colour
-pallet produced by `BSol-mapR` from randomly generated data.
+paletteproduced by `BSol.mapR` from randomly generated data.
 </p>
 
 </div>
 
 ### Area names and boundaries
 
-As can be seen from the examples above, for ward-level maps `BSol-mapR`
+As can be seen from the examples above, for ward-level maps `BSol.mapR`
 defaults to showing constituency lines and names. These can be turned
 off by setting `const_lines` and `const_names` both to `FALSE`. For
 example:
 
 ``` r
 plot_map(
-  data = agg_data,
+  data = data,
   value_header = "Cases",
-  save_name = "no_lines.png",
-  map_type = "Ward",
+  map_type = "MSOA11",
   const_lines = FALSE,
   const_names = FALSE
 )
@@ -338,10 +229,10 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme5.png" alt="Example of a ward-level map with constituency boundaries and names switched off produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/no-lines.svg" alt="Example of a ward-level map with constituency boundaries and names switched off produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level map with constituency boundaries and names
-switched off produced by `BSol-mapR` from randomly generated data.
+switched off produced by `BSol.mapR` from randomly generated data.
 </p>
 
 </div>
@@ -351,10 +242,9 @@ We can also choose to turn on locality boundaries and names by setting
 
 ``` r
 plot_map(
-  data = agg_data,
+  data = data,
   value_header = "Cases",
-  save_name = "no_lines.png",
-  map_type = "Ward",
+  map_type = "Postal District",
   locality_lines = TRUE,
   locality_names = TRUE
 )
@@ -362,10 +252,10 @@ plot_map(
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme6.png" alt="Example of a ward-level map with locality boundaries and names switched on. Produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/locality-lines.svg" alt="Example of a ward-level map with locality boundaries and names switched on. Produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level map with locality boundaries and names switched
-on. Produced by `BSol-mapR` from randomly generated data.
+on. Produced by `BSol.mapR` from randomly generated data.
 </p>
 
 </div>
@@ -380,21 +270,191 @@ corner by setting `compass = FALSE` as shown below.
 
 ``` r
 plot_map(
-  data = agg_data,
+  data = data,
   value_header = "Cases",
-  save_name = "no_compass.png",
   map_type = "Ward",
+  area_name = "Solihull",
   map_title = "Number lost people per 1000\npeople without a compass",
+  palette = "Greens",
   compass = FALSE
 )
 ```
 
 <div class="figure" style="text-align: center">
 
-<img src="data/readme-images/readme7.png" alt="Example of a ward-level with the compass turned off. Produced by `BSol-mapR` from randomly generated data." width="50%" />
+<img src="data/readme-images/no-compass.svg" alt="Example of a ward-level with the compass turned off. Produced by `BSol.mapR` from randomly generated data." width="50%" />
 <p class="caption">
 Example of a ward-level with the compass turned off. Produced by
-`BSol-mapR` from randomly generated data.
+`BSol.mapR` from randomly generated data.
 </p>
 
 </div>
+
+### Converting GP data
+
+Within Public Health we often work a lot with data where we have a
+number for each GP. However, it can be difficult to draw out any wider
+geographical trends from these single data points. We therefore often
+want to convert this GP-level data into ward, constituency or
+locality-level data. This data is then much easier to visualise as a
+choropleth map (often called a heat map).
+
+`BSol.mapR` is an R module designed to automatically convert GP-level
+counts to a ward, constituency or locality level, and produce
+customisable choropleth maps, such as that shown below. We can show
+numbers in both their raw and normalised form (for example total number
+of cases vs. cases per 1000 registered patients).
+
+Next, we need some GP-level data, for example from
+[FingerTips](https://fingertips.phe.org.uk/). As a minimum, the data
+must have a column containing the GP practice codes and the values you
+want to aggregate as shown in the example below. Don’t worry if you have
+additional columns. We will tell the BSol.mapR which columns we want to
+use and any others will be ignored.
+
+<div class="figure" style="text-align: center">
+
+<img src="data/readme-images/example_data_1.png" alt="Example data set of the number of 'Cases' for each GP. This data is randomly generated and does not reflect any real data." width="70%" />
+<p class="caption">
+Example data set of the number of ‘Cases’ for each GP. This data is
+randomly generated and does not reflect any real data.
+</p>
+
+</div>
+
+We aggregate this data using the function `convert_GP_data()`. At a
+minimum, this function takes:
+
+1.  `data`: Data frame output from `load_data_file()`
+2.  `GP_code_header`: The name of the GP code column (Here it’s
+    `"Practice Code"`)
+3.  `value_header`: The value you want to aggregate (Here it’s
+    `"Cases"`)
+
+Our code now looks like this:
+
+``` r
+library("BSol.mapR.R")
+
+raw_data <- load_data_file(
+  "data/fingertips_data.csv"
+)
+
+ward_data <- convert_GP_data(
+  data = raw_data,
+  GP_code_header = "Practice Code",
+  value_header = "Cases"
+)
+```
+
+As a default, `convert_GP_data()` will convert our GP data to a ward-level.
+
+We can change the aggregation level by setting `to` equal to `"Constituency"` or `"Locality"`. An example of converting to a locality level is shown below.
+
+``` r
+library("BSol.mapR.R")
+
+raw_data <- load_data_file(
+  "data/fingertips_data.csv"
+)
+
+Locality_data <- convert_GP_data(
+  data <- raw_data,
+  GP_code_header = "Practice Code",
+  value_header = "Cases",
+  sheet = "GP data",
+  to = "Locality"
+)
+```
+
+### Saving the data
+
+To save this data, for example, if you want to present it in PowerBI
+instead of plotting it in R, we use `save_data()` function.
+
+This takes:
+
+1.  `data`: the outputted data from `convert_GP_data()`
+2.  `save_path`: path to where the data should be saved (default =
+    `"map_data.xlsx"`)
+
+Note that the file extension must be either `".xlsx"`,`".xls"` or `".csv"`.
+
+We can then add the following to the bottom of our example code and run
+as before:
+
+``` r
+save_data_file(
+    data,
+    save_path = "my_ward_data.xlsx"
+) 
+```
+
+Notice that if we open this new file we will see that the aggregated
+values have the same column header as before.
+## Normalising Data
+
+### Why Normalise? 
+
+Different wards can have very different population sizes. For example, the 2011 census recorded that the Ladywood ward had 22,259 residents while Lozells had only 9153. Therefore, it is often inappropriate to compare the raw numbers of cases/conditions between different areas.
+
+We may instead want to normalise the counts by the size of the relevant
+population. This will often be the total number of residents, however,
+at times we might find it more appropriate to use a more specific
+reference population. For example, if we’re investigating the rates of
+teenage pregnancy it would probably be best to look at the number of
+cases per X the number of teenage girls.
+
+
+### Normalising with `BSol.mapR`
+
+Fortunately, normalising data with `BSol.mapR` is easy. All we have to
+do is add a new argument `norm_header` to `convert_GP_data()` with the
+name of the column variable that contains our denominator.
+
+As a default, `convert_GP_data()` will calculate the normalised number
+as a percentage, i.e. $100*value/norm$ or the number of cases *per 100*
+of the reference population. To change this we can set the
+`norm_output_per` value. For example, if we wanted the count per 1000 of
+the population we would set `norm_output_per = 1000` as shown in the
+example below.
+
+``` r
+library("BSol.mapR.R")
+
+data_to_normalise <- load_data_file(
+  "data/more_GP_data.csv"
+)
+
+data <- convert_GP_data(
+  data = data_to_normalise,
+  GP_code_header = "Practice Code",
+  value_header = "Cases",
+  norm_header = "Registered Patients",
+  norm_output_per = 1000
+)
+```
+
+If we save this data using `save_data_file()` we see that the new column name
+is a combination of our `value_header`, `norm_output_per` and
+`norm_header`. Specifically it’s “`value_header` per `norm_output_per`
+`norm_header`”
+
+This is important since we need to know the column header to plot the
+normalised data. You can also check the column names by running
+`colnames(data)` or simply saving the data using `save_data_file()` and opening the data in Excel.
+
+### Plotting normalised data
+
+Plotting the data works the same as before except we give `plot_map()`
+our new column header. In the case of the example above, our code would
+look as follows:
+
+``` r
+  plot_map(
+    data,
+    value_header = "Cases per 1000 Registered Patients",
+    map_type = "Ward"
+    )
+```
+

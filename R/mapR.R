@@ -230,8 +230,7 @@ plot_empty_map <- function(
     locality_lines = "None",
     locality_names = "None",
     compass = TRUE,
-    credits = "Contains OS data \u00A9 Crown copyright and database right 2020. Source:
-Office for National Statistics licensed under the Open Government Licence v.3.0.",
+    credits = "default",
     credits_size = 0.6,
     verbose = FALSE
 ) {
@@ -341,7 +340,7 @@ plot_map <- function(
     locality_lines = "None",
     locality_names = "None",
     compass = TRUE,
-    credits = NULL,
+    credits = "default",
     credits_size = 0.6,
     verbose = FALSE
 ) {
@@ -389,13 +388,12 @@ plot_map <- function(
   }
 
   if (credits != FALSE) {
-    if (is.null(credits)) {
+    if (credits == "default") {
       # Set credits to default
       credits <- paste("Contains OS data \u00A9 Crown copyright and database right",
                        # Get current year
                        format(Sys.Date(), "%Y"),
-                       " Source:
-                       Office for National Statistics licensed under the Open Government Licence v.3.0."
+                       ". Source:\nOffice for National Statistics licensed under the Open Government Licence v.3.0."
                        )
       }
     map <- add_credits(map, credits,
