@@ -7,8 +7,8 @@
 plot_map(
   data,
   value_header,
-  area_name = "Birmingham",
-  map_type = "Ward",
+  map_type,
+  area_name = "BSol",
   map_title = "",
   pallet = "Blues",
   style = "pretty",
@@ -18,8 +18,7 @@ plot_map(
   locality_lines = "None",
   locality_names = "None",
   compass = TRUE,
-  credits =
-    "Contains OS data © Crown copyright and database right 2020. Source:\\nOffice for National Statistics licensed under the Open Government Licence v.3.0.",
+  credits = NULL,
   credits_size = 0.6,
   verbose = FALSE
 )
@@ -29,9 +28,9 @@ plot_map(
 
 \item{value_header}{Header name for the value to be plotted}
 
-\item{area_name}{Name of area to be plotted: BSol, Birmingham, or Solihull}
-
 \item{map_type}{Map geography type: Constituency, Ward, LSOA21, etc}
+
+\item{area_name}{Name of area to be plotted: BSol, Birmingham, or Solihull}
 
 \item{map_title}{Title for the map}
 
