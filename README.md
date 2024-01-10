@@ -1,9 +1,11 @@
----
-title: "BSol.mapR"
-author: "David Ellis - BCC PHM"
-date: "10/01/2024"
----
+# BSol.mapR
 
+GitHub: [BSol.mapR](https://github.com/David-Ellis/BSol.mapR)
+
+David Ellis - BCC PHM
+
+Late Updated: 2024-01-10
+ 
 ## Introduction
 
 ### What is BSol.mapR?
