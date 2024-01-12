@@ -17,5 +17,6 @@ Imports:
     dplyr,
     readxl,
     sp,
+    stringr,
     tmap,
     writexl

@@ -354,6 +354,9 @@ plot_map <- function(
     verbose = FALSE
 ) {
 
+  # Wrap title text
+  map_title <- stringr::str_wrap(map_title, width = 40)
+
   tmap::tmap_options(show.messages = verbose)
 
   map <- plot_base_map(
