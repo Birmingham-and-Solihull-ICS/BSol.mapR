@@ -10,7 +10,7 @@ plot_map(
   map_type,
   area_name = "BSol",
   map_title = "",
-  pallet = "Blues",
+  palette = "Blues",
   style = "pretty",
   breaks = NULL,
   const_lines = "None",
@@ -34,8 +34,6 @@ plot_map(
 
 \item{map_title}{Title for the map}
 
-\item{pallet}{Colour pallet}
-
 \item{style}{Colour style: pretty/fixed}
 
 \item{breaks}{Value plotting range}
@@ -55,6 +53,8 @@ plot_map(
 \item{credits_size}{Credit size}
 
 \item{verbose}{Print debugging text}
+
+\item{paletteColour}{palette}
 }
 \description{
 Plot map

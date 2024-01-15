@@ -8,7 +8,7 @@ plot_empty_map(
   map_title = "",
   area_name = "BSol",
   map_type = "Ward",
-  pallet = "Blues",
+  palette = "Blues",
   const_lines = "None",
   const_names = "None",
   locality_lines = "None",
@@ -26,8 +26,6 @@ plot_empty_map(
 
 \item{map_type}{Map geography type: Constituency, Ward, LSOA21, etc}
 
-\item{pallet}{Colour pallet}
-
 \item{const_lines}{Include constituency lines: TRUE/FALSE}
 
 \item{const_names}{Include constituency names: TRUE/FALSE}
@@ -43,6 +41,8 @@ plot_empty_map(
 \item{credits_size}{Credit size}
 
 \item{verbose}{Print debugging text}
+
+\item{paletteColour}{palette}
 }
 \description{
 Plot Empty Map

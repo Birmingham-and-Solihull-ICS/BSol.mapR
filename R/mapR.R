@@ -138,7 +138,7 @@ plot_base_map <- function(
     map_title,
     area_name = "Birmingham",
     map_type = "Ward",
-    pallet = "Blues",
+    palette= "Blues",
     style = "pretty",
     breaks = NULL,
     verbose = FALSE
@@ -186,7 +186,7 @@ plot_base_map <- function(
     tmap::tm_fill(
       value_header,
       title = map_title,
-      palette = pallet,
+      palette = palette,
       style=style,
       breaks = breaks
     ) +
@@ -206,7 +206,7 @@ plot_base_map <- function(
 #' @param map_title Title for the map
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
-#' @param pallet Colour pallet
+#' @param paletteColour palette
 #' @param const_lines Include constituency lines: TRUE/FALSE
 #' @param const_names Include constituency names: TRUE/FALSE
 #' @param locality_lines Include locality lines: TRUE/FALSE
@@ -224,7 +224,7 @@ plot_empty_map <- function(
     map_title = "",
     area_name = "BSol",
     map_type = "Ward",
-    pallet = "Blues",
+    palette= "Blues",
     const_lines = "None",
     const_names = "None",
     locality_lines = "None",
@@ -319,7 +319,7 @@ plot_empty_map <- function(
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
 #' @param map_title Title for the map
-#' @param pallet Colour pallet
+#' @param paletteColour palette
 #' @param style Colour style: pretty/fixed
 #' @param breaks Value plotting range
 #' @param const_lines Include constituency lines: TRUE/FALSE
@@ -341,7 +341,7 @@ plot_map <- function(
     map_type,
     area_name = "BSol",
     map_title = "",
-    pallet = "Blues",
+    palette = "Blues",
     style = "pretty",
     breaks = NULL,
     const_lines = "None",
@@ -365,7 +365,7 @@ plot_map <- function(
     area_name = area_name,
     map_title = map_title,
     map_type = map_type,
-    pallet = pallet,
+    palette= palette,
     style = style,
     breaks = breaks,
     verbose = verbose
