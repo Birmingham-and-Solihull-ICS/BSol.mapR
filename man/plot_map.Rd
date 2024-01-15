@@ -18,7 +18,7 @@ plot_map(
   locality_lines = "None",
   locality_names = "None",
   compass = TRUE,
-  credits = NULL,
+  credits = "default",
   credits_size = 0.6,
   verbose = FALSE
 )

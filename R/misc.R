@@ -6,7 +6,7 @@
 #' @return data frame containing loaded data
 #' @export
 
-load_data_file <- function(
+load_data <- function(
     file_path = "output_data.xlsx",
     sheet = 1
 ) {
@@ -17,7 +17,7 @@ load_data_file <- function(
   if (extention == "csv"){
     data <- read.csv(
       file_path,
-      row.names=FALSE)
+      check.names=FALSE)
   } else if (extention %in% c("xls", "xlsx")) {
     data <- readxl::read_excel(
       file_path,
@@ -37,7 +37,7 @@ load_data_file <- function(
 #' @param save_path Save file name and path
 #'
 #' @export
-save_data_file <- function(
+save_data <- function(
     data,
     save_path = "output_data.xlsx"
 ) {

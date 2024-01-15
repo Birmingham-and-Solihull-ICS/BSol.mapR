@@ -61,7 +61,7 @@ Setting your working directory.
 
 ### Loading data
 
-To load data from Excel, we normally have to install and load additional R packages. However, BSol.mapR is set up to deal with this automatically. We can load xlsx, xls, and csv files using the `load_data_file()`. The function function takes the following arguments:
+To load data from Excel, we normally have to install and load additional R packages. However, BSol.mapR is set up to deal with this automatically. We can load xlsx, xls, and csv files using the `load_data()`. The function function takes the following arguments:
 
 1.  `file_path`:  path to the data file you want to load
 2.  `sheet`: (Optional) The name or number of the Excel tab containing (default = `1`)
@@ -70,7 +70,7 @@ To load data from Excel, we normally have to install and load additional R packa
 An example of how this function is used is shown below.
 
 ``` r
-data <- load_data_file(
+data <- load_data(
   "data/my_data.xlsx",
   sheet = "data"
   )
@@ -83,7 +83,7 @@ Your data must start in the top left-hand corner of the spreadsheet (cell A1). A
 Finally, we can plot this data as a map using `plot_map()`. The function takes
 the following basic arguments:
 
-1.  `data`: data frame output from `load_data_file()` or `convert_GP_data()`
+1.  `data`: data frame output from `load_data()` or `convert_GP_data()`
 2.  `value_header`: the name of the data column to be plotted (here:
     `"Cases"`)
 3.  `map_type`: Geography type to be plotted. Can be any of the following: "Ward", "Constituency", "Postal District", "Postal Sector", "LSOA11", "MSOA11", "LSOA21", "MSOA21".
@@ -301,7 +301,7 @@ BSol.mapR also has the ability to overlay points onto your map using the `add_po
 2.  `points_data`: data frame containing LONG and LAT of each point
 3. `color`: point colour (default = `"orange"`). Note: the argument name is spelt  using the <i>American</i> spelling for colour.
 
-We can load our spreadsheet containing the points to be plotted using `load_data_file()` as before. However, this file must contain the column headers `"LONG"` (longitude) and `LAT` (latitude). The data might look something like this:
+We can load our spreadsheet containing the points to be plotted using `load_data()` as before. However, this file must contain the column headers `"LONG"` (longitude) and `LAT` (latitude). The data might look something like this:
 
 <div class="figure" style="text-align: center">
 
@@ -314,8 +314,8 @@ A full example is shown below.
 library(BSol.mapR)
 
 # Load data
-ward_data <- load_data_file("data/myWardData.csv")
-points_data <- load_data_file("data/myPointsData.csv")
+ward_data <- load_data("data/myWardData.csv")
+points_data <- load_data("data/myPointsData.csv")
 
 # plot base map
 map <- plot_map(
@@ -355,7 +355,7 @@ Both of these features are presented in the example below.
 library(BSol.mapR)
 
 # Load data
-points_data <- load_data_file("data/myPointsData.csv")
+points_data <- load_data("data/myPointsData.csv")
 
 # plot base map
 map <- plot_empty_map(
@@ -414,7 +414,7 @@ use and any others will be ignored.
 We aggregate this data using the function `convert_GP_data()`. At a
 minimum, this function takes:
 
-1.  `data`: Data frame output from `load_data_file()`
+1.  `data`: Data frame output from `load_data()`
 2.  `GP_code_header`: The name of the GP code column (Here it’s
     `"Practice Code"`)
 3.  `value_header`: The value you want to aggregate (Here it’s
@@ -425,7 +425,7 @@ Our code now looks like this:
 ``` r
 library("BSol.mapR.R")
 
-raw_data <- load_data_file(
+raw_data <- load_data(
   "data/fingertips_data.csv"
 )
 
@@ -443,7 +443,7 @@ We can change the aggregation level by setting `to` equal to `"Constituency"` or
 ``` r
 library("BSol.mapR.R")
 
-raw_data <- load_data_file(
+raw_data <- load_data(
   "data/fingertips_data.csv"
 )
 
@@ -473,7 +473,7 @@ We can then add the following to the bottom of our example code and run
 as before:
 
 ``` r
-save_data_file(
+save_data(
     data,
     save_path = "my_ward_data.xlsx"
 ) 
@@ -511,7 +511,7 @@ example below.
 ``` r
 library("BSol.mapR.R")
 
-data_to_normalise <- load_data_file(
+data_to_normalise <- load_data(
   "data/more_GP_data.csv"
 )
 
@@ -524,14 +524,14 @@ data <- convert_GP_data(
 )
 ```
 
-If we save this data using `save_data_file()` we see that the new column name
+If we save this data using `save_data()` we see that the new column name
 is a combination of our `value_header`, `norm_output_per` and
 `norm_header`. Specifically it’s “`value_header` per `norm_output_per`
 `norm_header`”
 
 This is important since we need to know the column header to plot the
 normalised data. You can also check the column names by running
-`colnames(data)` or simply saving the data using `save_data_file()` and opening the data in Excel.
+`colnames(data)` or simply saving the data using `save_data()` and opening the data in Excel.
 
 ### Plotting normalised data
 

@@ -2,8 +2,8 @@
 
 export(add_points)
 export(convert_GP_data)
-export(load_data_file)
+export(load_data)
 export(plot_empty_map)
 export(plot_map)
-export(save_data_file)
+export(save_data)
 export(save_map)

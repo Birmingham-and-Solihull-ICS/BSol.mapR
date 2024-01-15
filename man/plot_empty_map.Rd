@@ -6,7 +6,7 @@
 \usage{
 plot_empty_map(
   map_title = "",
-  area_name = "Birmingham",
+  area_name = "BSol",
   map_type = "Ward",
   pallet = "Blues",
   const_lines = "None",
@@ -14,8 +14,7 @@ plot_empty_map(
   locality_lines = "None",
   locality_names = "None",
   compass = TRUE,
-  credits =
-    "Contains OS data © Crown copyright and database right 2020. Source:\\nOffice for National Statistics licensed under the Open Government Licence v.3.0.",
+  credits = "default",
   credits_size = 0.6,
   verbose = FALSE
 )
