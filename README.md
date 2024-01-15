@@ -28,7 +28,7 @@ BSol.mapR example using randomly generated data
 The package is used in the same way as any other R package you might be familiar with. However, the installation uses a slightly different function. We can install the package directly from GitHub by typing the following command into the RStudio console:
 
 ``` r
-devtools::install_github("David-Ellis/BSol.mapR")
+devtools::install_github("Birmingham-and-Solihull-ICS/BSol.mapR")
 ```
 
 `BSol.mapR` will automatically download any missing prerequisite
