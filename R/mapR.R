@@ -447,6 +447,15 @@ add_points <- function(
     else {
       # Load postcode look-up and join
       points_data <- points_data %>%
+        # standardise postcodes
+        mutate(
+          # Upper case
+          Postcode = str_to_upper(Postcode),
+          # Trim leading and trailing white space
+          Postcode = trimws(Postcode),
+          # Replace 1+ white space with single space
+          Postcode = gsub("\\s+", "\\s", Postcode)
+        ) %>%
         left_join(
           # Lazy loaded postcode data
           WM_Postcodes
