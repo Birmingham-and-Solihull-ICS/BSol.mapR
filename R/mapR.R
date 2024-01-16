@@ -450,7 +450,7 @@ add_points <- function(
         # standardise postcodes
         mutate(
           # Upper case
-          Postcode = str_to_upper(Postcode),
+          Postcode = stringr::str_to_upper(Postcode),
           # Trim leading and trailing white space
           Postcode = trimws(Postcode),
           # Replace 1+ white space with single space
