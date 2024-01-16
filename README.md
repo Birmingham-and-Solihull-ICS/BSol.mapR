@@ -1,10 +1,15 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # BSol.mapR
 
 GitHub: [BSol.mapR](https://github.com/David-Ellis/BSol.mapR)
 
 David Ellis - BCC PHM
 
-Late Updated: 2024-01-10
+Late Updated: 2024-01-16
  
 ## Introduction
 
@@ -423,7 +428,7 @@ minimum, this function takes:
 Our code now looks like this:
 
 ``` r
-library("BSol.mapR.R")
+library(BSol.mapR)
 
 raw_data <- load_data(
   "data/fingertips_data.csv"
@@ -441,7 +446,7 @@ As a default, `convert_GP_data()` will convert our GP data to a ward-level.
 We can change the aggregation level by setting `to` equal to `"Constituency"` or `"Locality"`. An example of converting to a locality level is shown below.
 
 ``` r
-library("BSol.mapR.R")
+library(BSol.mapR)
 
 raw_data <- load_data(
   "data/fingertips_data.csv"
@@ -509,7 +514,7 @@ the population we would set `norm_output_per = 1000` as shown in the
 example below.
 
 ``` r
-library("BSol.mapR.R")
+library(BSol.mapR)
 
 data_to_normalise <- load_data(
   "data/more_GP_data.csv"
