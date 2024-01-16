@@ -448,7 +448,7 @@ add_points <- function(
       # Load postcode look-up and join
       points_data <- points_data %>%
         # standardise postcodes
-        mutate(
+        dplyr::mutate(
           # Upper case
           Postcode = stringr::str_to_upper(Postcode),
           # Trim leading and trailing white space
@@ -456,7 +456,7 @@ add_points <- function(
           # Replace 1+ white space with single space
           Postcode = gsub("\\s+", " ", Postcode)
         ) %>%
-        left_join(
+        dplyr::left_join(
           # Lazy loaded postcode data
           WM_Postcodes
         )
@@ -465,6 +465,8 @@ add_points <- function(
       if (length(missing_coords) > 0) {
         print("The following postcodes could not be found.")
         print(missing_coords)
+        # Remove postcodes with missing coordinates
+        points_data <- points_data[!is.na(points_data$LONG),]
       }
 
     }
