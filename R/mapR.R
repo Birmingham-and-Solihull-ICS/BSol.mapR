@@ -454,7 +454,7 @@ add_points <- function(
           # Trim leading and trailing white space
           Postcode = trimws(Postcode),
           # Replace 1+ white space with single space
-          Postcode = gsub("\\s+", "\\s", Postcode)
+          Postcode = gsub("\\s+", " ", Postcode)
         ) %>%
         left_join(
           # Lazy loaded postcode data
