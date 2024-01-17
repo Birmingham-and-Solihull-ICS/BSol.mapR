@@ -10,6 +10,7 @@ plot_map(
   map_type,
   area_name = "BSol",
   map_title = "",
+  fill_missing = NA,
   palette = "Blues",
   style = "pretty",
   breaks = NULL,
@@ -33,6 +34,8 @@ plot_map(
 \item{area_name}{Name of area to be plotted: BSol, Birmingham, or Solihull}
 
 \item{map_title}{Title for the map}
+
+\item{fill_missing}{Fill missing values (default = NA)}
 
 \item{style}{Colour style: pretty/fixed}
 

@@ -138,6 +138,7 @@ plot_base_map <- function(
     map_title,
     area_name = "Birmingham",
     map_type = "Ward",
+    fill_missing = NA,
     palette= "Blues",
     style = "pretty",
     breaks = NULL,
@@ -165,6 +166,11 @@ plot_base_map <- function(
   shape@data <- shape@data %>%
     dplyr::left_join(area_data, by = map_type)
 
+  # Fill missing values (default with NA - i.e. no change)
+  na_mask = is.na(shape@data[value_header])
+  shape@data[value_header][na_mask] <- 0
+
+  # Filter shape file
   if (map_type %in% c("Postal District", "Postal Sector")) {
     shape <- remove_nas(shape, value_header)
   } else {
@@ -187,7 +193,7 @@ plot_base_map <- function(
       value_header,
       title = map_title,
       palette = palette,
-      style=style,
+      style = style,
       breaks = breaks
     ) +
     tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
@@ -319,6 +325,7 @@ plot_empty_map <- function(
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
 #' @param map_title Title for the map
+#' @param fill_missing Fill missing values (default = NA)
 #' @param paletteColour palette
 #' @param style Colour style: pretty/fixed
 #' @param breaks Value plotting range
@@ -341,6 +348,7 @@ plot_map <- function(
     map_type,
     area_name = "BSol",
     map_title = "",
+    fill_missing = NA,
     palette = "Blues",
     style = "pretty",
     breaks = NULL,
@@ -365,6 +373,7 @@ plot_map <- function(
     area_name = area_name,
     map_title = map_title,
     map_type = map_type,
+    fill_missing = fill_missing,
     palette= palette,
     style = style,
     breaks = breaks,
