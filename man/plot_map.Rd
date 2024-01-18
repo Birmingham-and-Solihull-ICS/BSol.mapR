@@ -14,6 +14,7 @@ plot_map(
   palette = "Blues",
   style = "pretty",
   breaks = NULL,
+  labels = NULL,
   const_lines = "None",
   const_names = "None",
   locality_lines = "None",
@@ -40,6 +41,8 @@ plot_map(
 \item{style}{Colour style: pretty/fixed}
 
 \item{breaks}{Value plotting range}
+
+\item{labels}{Custom value labels}
 
 \item{const_lines}{Include constituency lines: TRUE/FALSE}
 

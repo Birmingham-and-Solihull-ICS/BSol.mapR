@@ -142,6 +142,7 @@ plot_base_map <- function(
     palette= "Blues",
     style = "pretty",
     breaks = NULL,
+    labels = NULL,
     verbose = FALSE
 ) {
   # Check for valid map type and area name
@@ -194,7 +195,8 @@ plot_base_map <- function(
       title = map_title,
       palette = palette,
       style = style,
-      breaks = breaks
+      breaks = breaks,
+      labels = labels
     ) +
     tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
@@ -329,6 +331,7 @@ plot_empty_map <- function(
 #' @param paletteColour palette
 #' @param style Colour style: pretty/fixed
 #' @param breaks Value plotting range
+#' @param labels Custom value labels
 #' @param const_lines Include constituency lines: TRUE/FALSE
 #' @param const_names Include constituency names: TRUE/FALSE
 #' @param locality_lines Include locality lines: TRUE/FALSE
@@ -352,6 +355,7 @@ plot_map <- function(
     palette = "Blues",
     style = "pretty",
     breaks = NULL,
+    labels = NULL,
     const_lines = "None",
     const_names = "None",
     locality_lines = "None",
