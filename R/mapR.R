@@ -381,6 +381,7 @@ plot_map <- function(
     palette= palette,
     style = style,
     breaks = breaks,
+    labels = labels,
     verbose = verbose
   )
 
