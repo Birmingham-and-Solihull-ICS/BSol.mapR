@@ -435,6 +435,8 @@ plot_map <- function(
 #' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
 #' @param points_data data frame containing LONG and LAT of each point
 #' @param size Point plotting size
+#' @param alpha Point alpha (transparency) value. Default = 1 (Solid)
+#' @param shape Point shape. Default = 21 (Circle).
 #' @param color Point plotting colour (Set to category column name for variable colour plotting)
 #' @param palette Colour palette
 #'
@@ -446,6 +448,8 @@ add_points <- function(
     map,
     points_data,
     size = 0.1,
+    alpha = 1,
+    shape = 21,
     color = "orange",
     palette = "Dark2"
 ) {
@@ -494,11 +498,17 @@ add_points <- function(
   # Update coordinate system
   point_locs <- sp::spTransform(point_locs, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs")
 
+  #print(dplyr::glimpse(point_locs@data))
+
   map <- map +
     tmap::tm_shape(point_locs) +
-    tmap::tm_dots(size = size,
-            col = color,
-            palette = palette)
+    tmap::tm_dots(
+      size = size,
+      col = color,
+      palette = palette,
+      alpha = alpha,
+      shape = shape
+      )
 
   return(map)
 }
