@@ -135,7 +135,8 @@ add_credits<- function(map, credits, credits_size) {
 plot_base_map <- function(
     area_data,
     value_header,
-    map_title,
+    map_title = "",
+    fill_title = "",
     area_name = "Birmingham",
     map_type = "Ward",
     fill_missing = NA,
@@ -192,7 +193,7 @@ plot_base_map <- function(
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
-      title = map_title,
+      title = fill_title,
       palette = palette,
       style = style,
       breaks = breaks,
@@ -203,7 +204,10 @@ plot_base_map <- function(
               legend.width = 0.5,
               legend.height = 0.5,
               legend.frame = FALSE,
-              inner.margins = 0.08)
+              inner.margins = 0.08,
+              main.title = map_title,
+              main.title.size = 0.8,
+              frame = FALSE)
 
   return(map)
 }
@@ -242,8 +246,16 @@ plot_empty_map <- function(
     credits_size = 0.6,
     verbose = FALSE
 ) {
+
   # Check for valid map type and area name
   check_type_and_area(map_type, area_name)
+
+  # Wrap title text
+  if (area_name == "Birmingham") {
+    map_title <- stringr::str_wrap(map_title, width = 60)
+  } else {
+    map_title <- stringr::str_wrap(map_title, width = 73)
+  }
 
   # Load base shape - to get correct map zoom
   base_shape <- load_shape_file("Locality")
@@ -273,7 +285,10 @@ plot_empty_map <- function(
               legend.width = 0.5,
               legend.height = 0.5,
               legend.frame = FALSE,
-              inner.margins = 0.08)
+              inner.margins = 0.08,
+              main.title = map_title,
+              main.title.size = 0.8,
+              frame = FALSE)
 
   # Add constituency lines
   if (
@@ -351,6 +366,8 @@ plot_map <- function(
     map_type,
     area_name = "BSol",
     map_title = "",
+    fill_title = "",
+    fill_title_wrap = 40,
     fill_missing = NA,
     palette = "Blues",
     style = "pretty",
@@ -367,7 +384,13 @@ plot_map <- function(
 ) {
 
   # Wrap title text
-  map_title <- stringr::str_wrap(map_title, width = 40)
+  if (area_name == "Birmingham") {
+    map_title <- stringr::str_wrap(map_title, width = 60)
+  } else {
+    map_title <- stringr::str_wrap(map_title, width = 73)
+  }
+  # Wrap fill title text
+  fill_title <- stringr::str_wrap(fill_title, width = fill_title_wrap)
 
   tmap::tmap_options(show.messages = verbose)
 
@@ -375,8 +398,9 @@ plot_map <- function(
     data,
     value_header,
     area_name = area_name,
-    map_title = map_title,
     map_type = map_type,
+    map_title = map_title,
+    fill_title = fill_title,
     fill_missing = fill_missing,
     palette= palette,
     style = style,
