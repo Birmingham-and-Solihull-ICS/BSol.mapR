@@ -1,15 +1,8 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # BSol.mapR
 
-GitHub: [BSol.mapR](https://github.com/David-Ellis/BSol.mapR)
-
-David Ellis - BCC PHM
-
-Late Updated: 2024-01-16
+Created by: [David Ellis](https://github.com/David-Ellis) </br>
+Population Health Management</br>
+Birmingham City Council
  
 ## Introduction
 
