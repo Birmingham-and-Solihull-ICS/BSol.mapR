@@ -454,30 +454,16 @@ plot_map <- function(
   return(map)
 }
 
-#' Add points to map
+#' Gets the longitude and latitude from West Midlands postcodes if LONG and LAT
+#' columns are not already present
 #'
-#' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
-#' @param points_data data frame containing LONG and LAT of each point
-#' @param size Point plotting size
-#' @param alpha Point alpha (transparency) value. Default = 1 (Solid)
-#' @param shape Point shape. Default = 21 (Circle).
-#' @param color Point plotting colour (Set to category column name for variable colour plotting)
-#' @param palette Colour palette
+#' Columns must be labelled exactly as "Postcode" or "LONG" and "LAT".
 #'
-#' @return
-#' @export
-#'
-#' @examples
-add_points <- function(
-    map,
-    points_data,
-    size = 0.1,
-    alpha = 1,
-    shape = 21,
-    color = "orange",
-    palette = "Dark2"
+#' Function only works with West Midlands Postcodes.
+#' @param points_data Data frame containing postcodes and/or longitude and latitude data
+get_long_lat <- function(
+    points_data
 ) {
-  # If colnames don't include LONG and LAT - Pull from postcode
   if (
     ! ("LONG" %in% colnames(points_data) &
        "LAT" %in% colnames(points_data))
@@ -510,9 +496,39 @@ add_points <- function(
         # Remove postcodes with missing coordinates
         points_data <- points_data[!is.na(points_data$LONG),]
       }
-
     }
   }
+  return(points_data)
+}
+
+
+
+#' Add points to map
+#'
+#' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
+#' @param points_data data frame containing LONG and LAT of each point
+#' @param size Point plotting size
+#' @param alpha Point alpha (transparency) value. Default = 1 (Solid)
+#' @param shape Point shape. Default = 21 (Circle).
+#' @param color Point plotting colour (Set to category column name for variable colour plotting)
+#' @param palette Colour palette
+#'
+#' @return
+#' @export
+#'
+#' @examples
+add_points <- function(
+    map,
+    points_data,
+    size = 0.1,
+    alpha = 1,
+    shape = 21,
+    color = "orange",
+    palette = "Dark2"
+) {
+
+  # If colnames don't include LONG and LAT - Pull from postcode
+  points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
   point_locs <- sp::SpatialPointsDataFrame(
