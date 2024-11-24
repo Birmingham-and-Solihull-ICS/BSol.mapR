@@ -460,7 +460,14 @@ plot_map <- function(
 #' Columns must be labelled exactly as "Postcode" or "LONG" and "LAT".
 #'
 #' Function only works with West Midlands Postcodes.
-#' @param points_data Data frame containing postcodes and/or longitude and latitude data
+#' @param points_data Data frame containing postcodes and/or longitude and
+#' latitude data
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
 get_long_lat <- function(
     points_data
 ) {
@@ -506,6 +513,11 @@ get_long_lat <- function(
 #' Longitude and latitude columns names must be exactly "LONG" and "LAT"
 #'
 #' @param points_data Data frame containing longitude and latitude data
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_points_shape <- function(
     points_data
 ) {
@@ -556,14 +568,13 @@ add_points <- function(
   points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
-  point_locs <- get_points_shape(points_data)
+  point_shape <- get_points_shape(points_data)
 
   # Fix column names
-  colnames(point_locs@data) = colnames(points_data)
-  #print(colnames(point_locs@data))
+  colnames(point_shape@data) = colnames(points_data)
 
   map <- map +
-    tmap::tm_shape(point_locs) +
+    tmap::tm_shape(point_shape) +
     tmap::tm_dots(
       size = size,
       col = color,
@@ -575,6 +586,105 @@ add_points <- function(
   return(map)
 }
 
+#' Create radii shape object
+#'
+#' Creates shape file for circles centered on the given coordinates with the
+#' defined radii
+#'
+#' @param points_data data frame containing LONG and LAT of each point
+#' @param radii radii of the circles
+#' @param units units of the radii (Must be "km", "m", or "miles")
+#'  Other units might be okay, but they haven't been tested
+#'  TODO: Test these 3
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_radii_shapes <- function(
+    points_shape,
+    radii,
+    units = "km"
+){
+  # Update units mode to allow for variable units
+  units::units_options(set_units_mode = "standard")
+
+  points_shape_sf <- sf::st_as_sf(point_shape)
+
+  # Radii are contained in column in the given data
+  if (class(radii) == "character") {
+    radii_shape <-sf::st_buffer(
+      points_shape_sf,
+      units::set_units(
+        points_shape@data[[radii]],
+        units
+      )
+    )
+  }
+  # Radii are single single given value
+  else {
+    radii_shape <-
+      sf::st_buffer(
+        points_shape_sf,
+        units::set_units(
+          radii,
+          units
+        )
+      )
+  }
+
+  return(radii_shape)
+
+}
+
+#' Add circles with specified radii to map
+#'
+#' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
+#' @param points_data data frame containing LONG and LAT of each point
+#' @param radii radii of the circles
+#' @param unit units for radius ("km", "m", "miles")
+#' @param alpha Point alpha (transparency) value. Default = 1 (Solid)
+#' @param shape Point shape. Default = 21 (Circle).
+#' @param color Point plotting colour (Set to category column name for variable colour plotting)
+#' @param palette Colour palette
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
+add_radii <- function(
+    map,
+    points_data,
+    radii,
+    units = "km",
+    alpha = 1,
+    color = "orange",
+    palette = "Dark2"
+) {
+  # If colnames don't include LONG and LAT - Pull from postcode
+  points_data <- get_long_lat(points_data)
+
+  # Create new shape with high street points
+  point_shape <- get_points_shape(points_data)
+
+  # Fix column names
+  colnames(point_shape@data) = colnames(points_data)
+
+  #TODO: Define this function
+  radii_shape <- get_radii_shapes(point_shape, radii, units)
+
+  #TODO: Get this mapping to work (this is stackoverflow guess work)
+  map <- map +
+    tmap::tm_shape(radii_shape) +
+    tmap::tm_polygons(
+      col = color,
+      palette = palette,
+      alpha = alpha
+      )
+
+  return(map)
+}
 #' Save map object
 #'
 #' @param map Map object returned from plot_map(), plot_empty_map() or add_points()
