@@ -380,6 +380,37 @@ Example of an empty BSol map with grouped geographical locations plotted on top.
 
 </div>
 
+## Plotting radii
+
+Adding radii to a map works much like adding points. It takes data with either postcodes (`Postcode`) or longitude and latitude (`LONG` and `LAT`). It also takes radii either as a single numerical value or as a the column header for a variable radii values. The function can take typical units including kilometres ("km"), metres ("m"), and miles ("mi"). 
+
+```r
+# Load data including postcodes
+data <- load_data('BSol-Areas.xlsx', sheet = "Point")
+
+# Create empty map
+map <- plot_empty_map()
+
+# Plot radii with 1.2km radii
+map <- add_radii(map,
+           data,
+           radii = 1.2,
+           units = "km",
+           color = "Group")
+           
+# Save as vector image
+save_map(map, "map-radii1.svg")
+```
+
+<div class="figure" style="text-align: center">
+
+<img src="data/readme-images/map-radii1.svg" alt="Example of an empty BSol map with grouped locations with fixed radii plotted on top. Produced by `BSol.mapR` from randomly generated data." width="50%" />
+<p class="caption">
+Example of an empty BSol map with grouped locations with fixed radii plotted on top. Produced by `BSol.mapR` from randomly generated data
+</p>
+
+</div>
+
 ## Converting GP data
 
 Within Public Health we often work a lot with data where we have a
