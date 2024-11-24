@@ -97,7 +97,8 @@ filter_shape <- function(
     area_name,
     area_type
 ) {
-
+  #print("\nRunning...")
+  #print(class(shape))
   # Cut the shape file down to the correct area
   if ((tolower(area_name) == "bsol")) {
     # Do nothing
@@ -569,13 +570,13 @@ add_points <- function(
   points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
-  point_shape <- get_points_shape(points_data)
+  points_shape <- get_points_shape(points_data)
 
   # Fix column names
-  colnames(point_shape@data) = colnames(points_data)
+  colnames(points_shape@data) = colnames(points_data)
 
   map <- map +
-    tmap::tm_shape(point_shape) +
+    tmap::tm_shape(points_shape) +
     tmap::tm_dots(
       size = size,
       col = color,
@@ -610,7 +611,7 @@ get_radii_shapes <- function(
   # Update units mode to allow for variable units
   units::units_options(set_units_mode = "standard")
 
-  points_shape_sf <- sf::st_as_sf(point_shape)
+  points_shape_sf <- sf::st_as_sf(points_shape)
 
   # Radii are contained in column in the given data
   if (class(radii) == "character") {
@@ -667,12 +668,12 @@ add_radii <- function(
   points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
-  point_shape <- get_points_shape(points_data)
+  points_shape <- get_points_shape(points_data)
 
   # Fix column names
-  colnames(point_shape@data) = colnames(points_data)
+  colnames(points_shape@data) = colnames(points_data)
 
-  radii_shape <- get_radii_shapes(point_shape, radii, units)
+  radii_shape <- get_radii_shapes(points_shape, radii, units)
 
   #TODO: Get this mapping to work (this is stackoverflow guess work)
   map <- map +
