@@ -342,6 +342,7 @@ plot_empty_map <- function(
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
 #' @param map_title Title for the map
+#' @param fill_title Title for the fill variable
 #' @param fill_missing Fill missing values (default = NA)
 #' @param paletteColour palette
 #' @param style Colour style: pretty/fixed
@@ -652,13 +653,13 @@ get_radii_shapes <- function(
 #' @export
 #'
 #' @examples
-
+#'
 add_radii <- function(
     map,
     points_data,
     radii,
     units = "km",
-    alpha = 1,
+    alpha = 0.5,
     color = "orange",
     palette = "Dark2"
 ) {
@@ -671,7 +672,6 @@ add_radii <- function(
   # Fix column names
   colnames(point_shape@data) = colnames(points_data)
 
-  #TODO: Define this function
   radii_shape <- get_radii_shapes(point_shape, radii, units)
 
   #TODO: Get this mapping to work (this is stackoverflow guess work)
