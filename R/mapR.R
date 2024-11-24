@@ -46,7 +46,7 @@ add_const_lines <- function(
 ) {
 
   constituencies <- load_shape_file("Constituency")
-  constituencies <- filter_shape(constituencies, area_name, area_type = "Constituency")
+  constituencies <- filter_shape(constituencies, area_name)
 
   # TODO: Update lazy loaded data to prevent this
   colnames(constituencies@data)[1] = "Constituency"
@@ -71,7 +71,7 @@ add_locality_lines <- function(
 ) {
 
   localities <- load_shape_file("Locality")
-  localities <- filter_shape(localities, area_name, area_type = "Locality")
+  localities <- filter_shape(localities, area_name)
 
   map <- map +
     tmap::tm_shape(localities) +
@@ -94,20 +94,21 @@ add_compass <- function(map) {
 
 filter_shape <- function(
     shape,
-    area_name,
-    area_type
+    area_name
 ) {
-  #print("\nRunning...")
-  #print(class(shape))
+
   # Cut the shape file down to the correct area
   if ((tolower(area_name) == "bsol")) {
     # Do nothing
+    #print("Didn't do anything!")
   } else if (tolower(area_name) == "birmingham") {
     # Filter for Birmingham
     shape <- shape[shape@data$Area == "Birmingham",]
+    #print("Birmingham is okay!")
   } else if (tolower(area_name) == "solihull") {
-    # Filter for Birmingham
+    # Filter for Solihull
     shape <- shape[shape@data$Area == "Solihull",]
+    #print("Solihull is okay!")
   }
 
   return(shape)
@@ -152,7 +153,7 @@ plot_base_map <- function(
 
   # Load base shape - to get correct map zoom
   base_shape <- load_shape_file("Locality")
-  base_shape <- filter_shape(base_shape, area_name, map_type)
+  base_shape <- filter_shape(base_shape, area_name)
 
   shape <- load_shape_file(map_type)
 
@@ -177,7 +178,7 @@ plot_base_map <- function(
   if (map_type %in% c("Postal District", "Postal Sector")) {
     shape <- remove_nas(shape, value_header)
   } else {
-    shape <- filter_shape(shape, area_name, map_type)
+    shape <- filter_shape(shape, area_name)
   }
 
   # Turn off borders for LSOA maps
@@ -261,12 +262,13 @@ plot_empty_map <- function(
   # Load base shape - to get correct map zoom
   base_shape <- load_shape_file("Locality")
 
-  base_shape <- filter_shape(base_shape, area_name, map_type)
-
+  #print("-----1-----")
+  base_shape <- filter_shape(base_shape, area_name)
+  #print("-----2-----")
   shape <- load_shape_file(map_type)
 
   if (!(map_type %in% c("Postal District", "Postal Sector"))) {
-    shape <- filter_shape(shape, area_name, map_type)
+    shape <- filter_shape(shape, area_name)
   }
 
   # TODO: Update lazy loaded data to prevent this
