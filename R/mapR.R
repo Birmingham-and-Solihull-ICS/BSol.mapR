@@ -93,25 +93,28 @@ add_compass <- function(map) {
 }
 
 filter_shape <- function(
-    shape,
+    input_shape,
     area_name
 ) {
 
   # Cut the shape file down to the correct area
-  if ((tolower(area_name) == "bsol")) {
+  if (
+    (tolower(area_name) == "bsol")
+    ) {
     # Do nothing
     #print("Didn't do anything!")
-  } else if (tolower(area_name) == "birmingham") {
-    # Filter for Birmingham
-    shape <- shape[shape@data$Area == "Birmingham",]
-    #print("Birmingham is okay!")
-  } else if (tolower(area_name) == "solihull") {
-    # Filter for Solihull
-    shape <- shape[shape@data$Area == "Solihull",]
+  } else if (
+    tolower(area_name) %in% c("birmingham", "solihull")
+    ) {
+    #print(input_shape)
+    #print("-------------")
+    #print(class(input_shape))
+    # Filter for Birmingham or Solihull
+    output_shape <- subset(input_shape, input_shape@data$Area == area_name)
     #print("Solihull is okay!")
   }
 
-  return(shape)
+  return(output_shape)
 }
 
 remove_nas <- function(
