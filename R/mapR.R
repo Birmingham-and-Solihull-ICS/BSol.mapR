@@ -102,16 +102,12 @@ filter_shape <- function(
     (tolower(area_name) == "bsol")
     ) {
     # Do nothing
-    #print("Didn't do anything!")
+    output_shape <- input_shape
   } else if (
     tolower(area_name) %in% c("birmingham", "solihull")
     ) {
-    #print(input_shape)
-    #print("-------------")
-    #print(class(input_shape))
     # Filter for Birmingham or Solihull
     output_shape <- subset(input_shape, input_shape@data$Area == area_name)
-    #print("Solihull is okay!")
   }
 
   return(output_shape)
