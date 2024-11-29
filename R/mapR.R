@@ -24,6 +24,7 @@ load_shape_file <- function(map_type) {
   shape <- switch(
     map_type,
     "Constituency" = Constituency,
+    "Constituency24" = const24_shape,
     "Locality" = Locality,
     "LSOA11" = LSOA11,
     "LSOA21" = LSOA21,
