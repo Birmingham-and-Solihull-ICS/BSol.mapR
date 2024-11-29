@@ -4,11 +4,15 @@ options(warn=-1)
 
 check_type_and_area <- function(map_type, area_name) {
   # Check for valid map type
-  if (!(map_type %in% c("Locality", "Constituency", "Ward", "Postal District",
-                        "Postal Sector", "LSOA11", "MSOA11", "LSOA21", "MSOA21"))) {
+  if (!(map_type %in% c(
+    "Locality", "Constituency", "Constituency24", "Ward",
+    "Postal District","Postal Sector",
+    "LSOA11", "MSOA11", "LSOA21", "MSOA21"
+    ))
+    )
+    {
     stop(paste("Error: Unexpected map type. Given `", map_type,"`", sep = ""))
-  }
-
+    }
   # Check for valid area name
   if (!(area_name %in% c("BSol", "Birmingham", "Solihull"))) {
     stop(
@@ -45,7 +49,6 @@ add_const_lines <- function(
     const_names = "None",
     verbose = FALSE
 ) {
-
   constituencies <- load_shape_file("Constituency")
   constituencies <- filter_shape(constituencies, area_name)
 
@@ -191,7 +194,7 @@ plot_base_map <- function(
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0) +
+    tmap::tm_borders(lwd = 0, alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
@@ -281,7 +284,7 @@ plot_empty_map <- function(
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0) +
+    tmap::tm_borders(lwd = 0, alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_borders(col = "grey80", lwd = 0.65) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
