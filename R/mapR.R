@@ -175,7 +175,7 @@ plot_base_map <- function(
 
   # Fill missing values (default with NA - i.e. no change)
   na_mask = is.na(shape@data[value_header])
-  shape@data[value_header][na_mask] <- 0
+  shape@data[value_header][na_mask] <- fill_missing
 
   # Filter shape file
   if (map_type %in% c("Postal District", "Postal Sector")) {
