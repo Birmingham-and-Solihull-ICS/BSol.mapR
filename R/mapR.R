@@ -2,7 +2,13 @@ options(warn=-1)
 
 `%>%` = dplyr::`%>%`
 
-check_type_and_area <- function(map_type, area_name) {
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#'
+check_type_and_area <- function(
+    map_type,
+    area_name
+    ) {
   # Check for valid map type
   if (!(map_type %in% c(
     "Locality", "Constituency", "Constituency24", "Ward",
@@ -23,6 +29,8 @@ check_type_and_area <- function(map_type, area_name) {
   }
 }
 
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#'
 load_shape_file <- function(map_type) {
   # Load lazy loaded shape file
   shape <- switch(
@@ -43,6 +51,10 @@ load_shape_file <- function(map_type) {
   return(shape)
 }
 
+#' @param map Map object created by plot_base_map() or similar
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#' @param verbose Print debugging text
 add_const_lines <- function(
     map,
     area_name = "Birmingham",
@@ -67,6 +79,10 @@ add_const_lines <- function(
   return(map)
 }
 
+#' @param map Map object created by plot_base_map() or similar
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#' @param locality_names Include locality names: TRUE/FALSE
+#' @param verbose Print debugging text
 add_locality_lines <- function(
     map,
     area_name = "Birmingham",
@@ -128,24 +144,39 @@ remove_nas <- function(
   return(shape)
 }
 
-
-add_credits<- function(map, credits, credits_size) {
+add_credits<- function(
+    map,
+    credits,
+    credits_size
+    ) {
   map <- map +
     tmap::tm_credits(credits, size = credits_size,
                position = c(0, 0))
   return(map)
 }
 
-
+#' @param area_data Data frame containing area IDs and plot value
+#' @param value_header Header name for the value to be plotted
+#' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
+#' @param map_title Title for the map
+#' @param fill_title Title for the fill variable
+#' @param fill_missing Fill missing values (default = NA)
+#' @param palette palette
+#' @param style Colour style: pretty/fixed
+#' @param breaks Value plotting range
+#' @param labels Custom value labels
+#' @param verbose Print debugging text
+#'
 plot_base_map <- function(
     area_data,
     value_header,
+    map_type,
+    area_name,
     map_title = "",
     fill_title = "",
-    area_name = "Birmingham",
-    map_type = "Ward",
     fill_missing = NA,
-    palette= "Blues",
+    palette = "Blues",
     style = "pretty",
     breaks = NULL,
     labels = NULL,
@@ -345,8 +376,8 @@ plot_empty_map <- function(
 #'
 #' @param data Data frame containing area IDs and plot value
 #' @param value_header Header name for the value to be plotted
-#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
+#' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_title Title for the map
 #' @param fill_title Title for the fill variable
 #' @param fill_missing Fill missing values (default = NA)
@@ -389,6 +420,7 @@ plot_map <- function(
     credits_size = 0.6,
     verbose = FALSE
 ) {
+  tmap::tmap_options(show.messages = verbose)
 
   # Wrap title text
   if (area_name == "Birmingham") {
@@ -399,7 +431,7 @@ plot_map <- function(
   # Wrap fill title text
   fill_title <- stringr::str_wrap(fill_title, width = fill_title_wrap)
 
-  tmap::tmap_options(show.messages = verbose)
+
 
   map <- plot_base_map(
     data,
