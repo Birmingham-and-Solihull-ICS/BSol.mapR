@@ -176,6 +176,7 @@ plot_base_map <- function(
     map_title = "",
     fill_title = "",
     fill_missing = NA,
+    textNA = "Missing",
     palette = "Blues",
     style = "pretty",
     breaks = NULL,
@@ -233,7 +234,8 @@ plot_base_map <- function(
       palette = palette,
       style = style,
       breaks = breaks,
-      labels = labels
+      labels = labels,
+      textNA = textNA
     ) +
     tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
@@ -407,6 +409,7 @@ plot_map <- function(
     fill_title = "",
     fill_title_wrap = 40,
     fill_missing = NA,
+    textNA = "Missing",
     palette = "Blues",
     style = "pretty",
     breaks = NULL,
@@ -441,6 +444,7 @@ plot_map <- function(
     map_title = map_title,
     fill_title = fill_title,
     fill_missing = fill_missing,
+    textNA = textNA
     palette= palette,
     style = style,
     breaks = breaks,
