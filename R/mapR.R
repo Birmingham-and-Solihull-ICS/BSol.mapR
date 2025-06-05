@@ -444,7 +444,7 @@ plot_map <- function(
     map_title = map_title,
     fill_title = fill_title,
     fill_missing = fill_missing,
-    textNA = textNA
+    textNA = textNA,
     palette= palette,
     style = style,
     breaks = breaks,
