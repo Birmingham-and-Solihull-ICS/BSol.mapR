@@ -232,7 +232,7 @@ plot_base_map <- function(
       value_header,
       title = fill_title,
       palette = palette,
-      style = style,
+      fill.scale = tmap::tm_scale_intervals(style),
       breaks = breaks,
       labels = labels,
       textNA = textNA
@@ -619,7 +619,7 @@ add_points <- function(
       size = size,
       col = color,
       palette = palette,
-      alpha = alpha,
+      fill_alpha = alpha,
       shape = shape
       )
 
@@ -719,7 +719,7 @@ add_radii <- function(
     tmap::tm_polygons(
       col = color,
       palette = palette,
-      alpha = alpha
+      fill_alpha = alpha
       )
 
   return(map)
