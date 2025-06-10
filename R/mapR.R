@@ -226,7 +226,7 @@ plot_base_map <- function(
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0, alpha = 0) +
+    tmap::tm_borders(lwd = 0, col_alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
@@ -237,7 +237,7 @@ plot_base_map <- function(
       labels = labels,
       textNA = textNA
     ) +
-    tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
+    tmap::tm_borders(col = "grey80", lwd = 0.4, col_alpha = alpha) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
@@ -317,7 +317,7 @@ plot_empty_map <- function(
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0, alpha = 0) +
+    tmap::tm_borders(lwd = 0, col_alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_borders(col = "grey80", lwd = 0.65) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
