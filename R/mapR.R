@@ -35,16 +35,16 @@ load_shape_file <- function(map_type) {
   # Load lazy loaded shape file
   shape <- switch(
     map_type,
-    "Constituency" = Constituency,
-    "Constituency24" = const24_shape,
-    "Locality" = Locality,
-    "LSOA11" = LSOA11,
-    "LSOA21" = LSOA21,
-    "MSOA11" = MSOA11,
-    "MSOA21" = MSOA21,
-    "Postal District" = `Postal District`,
-    "Postal Sector" = `Postal Sector`,
-    "Ward" = Ward,
+    "Constituency" = sf::st_as_sf(Constituency),
+    "Constituency24" = sf::st_as_sf(const24_shape),
+    "Locality" = sf::st_as_sf(Locality),
+    "LSOA11" = sf::st_as_sf(LSOA11),
+    "LSOA21" = sf::st_as_sf(LSOA21),
+    "MSOA11" = sf::st_as_sf(MSOA11),
+    "MSOA21" = sf::st_as_sf(MSOA21),
+    "Postal District" = sf::st_as_sf(`Postal District`),
+    "Postal Sector" = sf::st_as_sf(`Postal Sector`),
+    "Ward" = sf::st_as_sf(Ward),
     stop("Unknown map type.")
   )
 
@@ -65,7 +65,7 @@ add_const_lines <- function(
   constituencies <- filter_shape(constituencies, area_name)
 
   # TODO: Update lazy loaded data to prevent this
-  colnames(constituencies@data)[1] = "Constituency"
+  colnames(constituencies)[1] = "Constituency"
 
   # Add lines to map
   map <- map +
@@ -127,7 +127,7 @@ filter_shape <- function(
     tolower(area_name) %in% c("birmingham", "solihull")
     ) {
     # Filter for Birmingham or Solihull
-    output_shape <- subset(input_shape, input_shape@data$Area == area_name)
+    output_shape <- subset(input_shape, input_shape$Area == area_name)
   }
 
   return(output_shape)
@@ -138,7 +138,7 @@ remove_nas <- function(
     value_header
 ) {
   # filter shape down to areas we have data for
-  mask <- !is.na(shape@data[[value_header]])
+  mask <- !is.na(shape[[value_header]])
   shape <- shape[mask,]
 
   return(shape)
@@ -194,20 +194,20 @@ plot_base_map <- function(
 
   # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
-    colnames(shape@data)[1] = "Constituency"
+    colnames(shape)[1] = "Constituency"
   } else if (map_type == "Postal District") {
-    colnames(shape@data)[1] = "Postal District"
+    colnames(shape)[1] = "Postal District"
   } else if (map_type == "Postal Sector") {
-    colnames(shape@data)[1] = "Postal Sector"
+    colnames(shape)[1] = "Postal Sector"
   }
 
   # join data
-  shape@data <- shape@data %>%
+  shape <- shape %>%
     dplyr::left_join(area_data, by = map_type)
 
   # Fill missing values (default with NA - i.e. no change)
-  na_mask = is.na(shape@data[value_header])
-  shape@data[value_header][na_mask] <- fill_missing
+  na_mask = is.na(shape[value_header])
+  shape[value_header][na_mask] <- fill_missing
 
   # Filter shape file
   if (map_type %in% c("Postal District", "Postal Sector")) {
@@ -309,9 +309,9 @@ plot_empty_map <- function(
 
   # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
-    colnames(shape@data)[1] = "Constituency"
+    colnames(shape)[1] = "Constituency"
   } else if (map_type == "Postal District") {
-    colnames(shape@data)[1] = "Postal District"
+    colnames(shape)[1] = "Postal District"
   }
 
   #### plot map ####
@@ -611,10 +611,7 @@ add_points <- function(
   points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
-  points_shape <- get_points_shape(points_data)
-
-  # Fix column names
-  colnames(points_shape@data) = colnames(points_data)
+  points_shape <- sf::st_as_sf(get_points_shape(points_data))
 
   map <- map +
     tmap::tm_shape(points_shape) +
@@ -659,7 +656,7 @@ get_radii_shapes <- function(
     radii_shape <-sf::st_buffer(
       points_shape_sf,
       units::set_units(
-        points_shape@data[[radii]],
+        points_shape[[radii]],
         units
       )
     )
@@ -712,7 +709,7 @@ add_radii <- function(
   points_shape <- get_points_shape(points_data)
 
   # Fix column names
-  colnames(points_shape@data) = colnames(points_data)
+  colnames(points_shape) = colnames(points_data)
 
   radii_shape <- get_radii_shapes(points_shape, radii, units)
 
