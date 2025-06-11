@@ -230,21 +230,27 @@ plot_base_map <- function(
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
-      title = fill_title,
-      palette = palette,
-      fill.scale = tmap::tm_scale_intervals(style),
-      breaks = breaks,
-      labels = labels,
-      textNA = textNA
+      fill.scale = tmap::tm_scale_intervals(
+        style = style,
+        breaks = breaks,
+        labels = labels,
+        label.na = textNA,
+        values = palette
+        ),
+      fill.legend = tmap::tm_legend(
+        title = fill_title
+        )
     ) +
     tmap::tm_borders(col = "grey80", lwd = 0.4, col_alpha = alpha) +
+    tmap::tm_title(
+      text = map_title,
+      size = 0.8
+      ) +
     tmap::tm_layout(legend.position = c("LEFT", "TOP"),
               legend.width = 0.5,
               legend.height = 0.5,
               legend.frame = FALSE,
               inner.margins = 0.08,
-              main.title = map_title,
-              main.title.size = 0.8,
               frame = FALSE)
 
   return(map)
