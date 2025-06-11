@@ -331,9 +331,11 @@ plot_empty_map <- function(
               legend.height = 0.5,
               legend.frame = FALSE,
               inner.margins = 0.08,
-              main.title = map_title,
-              main.title.size = 0.8,
-              frame = FALSE)
+              frame = FALSE) +
+    tmap::tm_title(
+      text = map_title,
+      size = 0.8,
+    )
 
   # Add constituency lines
   if (
@@ -606,7 +608,7 @@ get_points_shape <- function(
 add_points <- function(
     map,
     points_data,
-    size = 0.1,
+    size = 0.3,
     alpha = 1,
     shape = 21,
     color = "orange",
@@ -623,8 +625,10 @@ add_points <- function(
     tmap::tm_shape(points_shape) +
     tmap::tm_dots(
       size = size,
-      col = color,
-      palette = palette,
+      fill = color,
+      fill.scale = tmap::tm_scale(
+        values = palette
+      ),
       fill_alpha = alpha,
       shape = shape
       )
