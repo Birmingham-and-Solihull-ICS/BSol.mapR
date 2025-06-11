@@ -246,12 +246,13 @@ plot_base_map <- function(
       text = map_title,
       size = 0.8
       ) +
-    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
-              legend.width = 0.5,
-              legend.height = 0.5,
-              legend.frame = FALSE,
-              inner.margins = 0.08,
-              frame = FALSE)
+    tmap::tm_layout(
+      legend.position = c("LEFT", "TOP"),
+      scale = 0.8,
+      legend.frame.alpha = 0,
+      legend.frame.lwd = 0,
+      inner.margins = 0.08,
+      frame = FALSE)
 
   return(map)
 }
@@ -326,12 +327,15 @@ plot_empty_map <- function(
     tmap::tm_borders(lwd = 0, col_alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_borders(col = "grey80", lwd = 0.65) +
-    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
-              legend.width = 0.5,
-              legend.height = 0.5,
-              legend.frame = FALSE,
-              inner.margins = 0.08,
-              frame = FALSE) +
+    tmap::tm_layout(
+      legend.position = c("LEFT", "TOP"),
+      scale = 0.8,
+      legend.frame.alpha = 0,
+      legend.frame.lwd = 0,
+      legend.frame = FALSE,
+      inner.margins = 0.08,
+      frame = FALSE
+      ) +
     tmap::tm_title(
       text = map_title,
       size = 0.8,
