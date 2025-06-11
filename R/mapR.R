@@ -209,7 +209,7 @@ plot_base_map <- function(
     fill_title = "",
     fill_missing = NA,
     textNA = "Missing",
-    palette = "Blues",
+    palette = "brewer.blues",
     style = "pretty",
     breaks = NULL,
     labels = NULL,
@@ -295,7 +295,7 @@ plot_base_map <- function(
 #' @param map_title Title for the map
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
-#' @param paletteColour palette
+#' @param palette Colour palette
 #' @param const_lines Include constituency lines: TRUE/FALSE
 #' @param const_names Include constituency names: TRUE/FALSE
 #' @param locality_lines Include locality lines: TRUE/FALSE
