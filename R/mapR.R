@@ -206,8 +206,8 @@ plot_base_map <- function(
     dplyr::left_join(area_data, by = map_type)
 
   # Fill missing values (default with NA - i.e. no change)
-  na_mask = is.na(shape[value_header])
-  shape[value_header][na_mask] <- fill_missing
+  shape[[value_header]][is.na(shape[[value_header]])]  <- fill_missing
+
 
   # Filter shape file
   if (map_type %in% c("Postal District", "Postal Sector")) {
@@ -604,7 +604,7 @@ add_points <- function(
     alpha = 1,
     shape = 21,
     color = "orange",
-    palette = "Dark2"
+    palette = "brewer.dark2"
 ) {
 
   # If colnames don't include LONG and LAT - Pull from postcode
@@ -700,7 +700,7 @@ add_radii <- function(
     units = "km",
     alpha = 0.5,
     color = "orange",
-    palette = "Dark2"
+    palette = "brewer.dark2"
 ) {
   # If colnames don't include LONG and LAT - Pull from postcode
   points_data <- get_long_lat(points_data)
