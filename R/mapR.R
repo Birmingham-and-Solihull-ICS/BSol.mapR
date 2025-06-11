@@ -144,6 +144,38 @@ remove_nas <- function(
   return(shape)
 }
 
+#' @param style fill style e.g. "pretty", "fixed", or "cont"
+#' @param breaks scale breaks to display
+#' @param labels scale labels to display
+#' @param textNA label for missing values
+#' @param palette colour palette
+get_scale <- function(
+  style,
+  breaks,
+  labels,
+  textNA,
+  palette
+  ) {
+  if (style %in% c("pretty", "fixed")) {
+    scale = tmap::tm_scale_intervals(
+      style = style,
+      breaks = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette
+    )
+  } else if (style == "cont") {
+    scale = tmap::tm_scale_continuous(
+      ticks = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette,
+      values.scale = 0.3
+       )
+  }
+  return(scale)
+}
+
 add_credits<- function(
     map,
     credits,
@@ -230,12 +262,12 @@ plot_base_map <- function(
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
-      fill.scale = tmap::tm_scale_intervals(
+      fill.scale = get_scale(
         style = style,
         breaks = breaks,
         labels = labels,
-        label.na = textNA,
-        values = palette
+        textNA = textNA,
+        palette = palette
         ),
       fill.legend = tmap::tm_legend(
         title = fill_title
@@ -333,6 +365,8 @@ plot_empty_map <- function(
       legend.frame.alpha = 0,
       legend.frame.lwd = 0,
       legend.frame = FALSE,
+      scalebar.position = c("LEFT", "TOP"),
+      scalebar.size = 5,
       inner.margins = 0.08,
       frame = FALSE
       ) +
