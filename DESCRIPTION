@@ -17,5 +17,5 @@ Imports:
     readxl,
     sp,
     stringr,
-    tmap,
+    tmap (>= 4.0),
     writexl
