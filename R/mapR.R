@@ -144,19 +144,38 @@ remove_nas <- function(
   return(shape)
 }
 
+#' @param area_data data frame containing area IDs and plot value
+#' @param value_header Header name for the value to be plotted
 #' @param style fill style e.g. "pretty", "fixed", or "cont"
 #' @param breaks scale breaks to display
 #' @param labels scale labels to display
 #' @param textNA label for missing values
 #' @param palette colour palette
 get_scale <- function(
+  area_data,
+  value_header,
   style,
   breaks,
   labels,
   textNA,
   palette
   ) {
-  if (style %in% c("pretty", "fixed")) {
+
+  # # Check if only one value. If so, override breaks and labels.
+  num_vals <- length(unique(area_data[value_header]))
+  #
+  #   breaks = c(unique(area_data[value_header]) - 1,
+  #              unique(area_data[value_header]) + 1)
+  #   limits = breaks
+  #   labels = as.character(unique(area_data[value_header]))
+  # } else {
+  #   limits = NULL
+  # }
+  if (num_vals == 1) {
+    # Do nothing
+    scale = tmap::tm_scale()
+  }
+  else if (style %in% c("pretty", "fixed")) {
     scale = tmap::tm_scale_intervals(
       style = style,
       breaks = breaks,
@@ -263,6 +282,8 @@ plot_base_map <- function(
     tmap::tm_fill(
       value_header,
       fill.scale = get_scale(
+        area_data = area_data,
+        value_header = value_header,
         style = style,
         breaks = breaks,
         labels = labels,
