@@ -680,6 +680,9 @@ add_points <- function(
   # Create new shape with high street points
   points_shape <- sf::st_as_sf(get_points_shape(points_data))
 
+  # Fix column names
+  colnames(points_shape) <- c(colnames(points_data), "geometry")
+
   map <- map +
     tmap::tm_shape(points_shape) +
     tmap::tm_dots(
