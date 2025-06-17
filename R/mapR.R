@@ -107,8 +107,12 @@ add_locality_lines <- function(
 
 add_compass <- function(map) {
   map <- map +
-    tmap::tm_compass(type = "8star", size = 4,
-               position = c("RIGHT", "bottom"))
+    tmap::tm_compass(
+      type = "8star",
+      size = 4,
+      position = c("RIGHT", "bottom"),
+      color.light = "white"
+      )
   return(map)
 }
 
