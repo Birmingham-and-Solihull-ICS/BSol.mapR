@@ -201,8 +201,11 @@ add_credits<- function(
     credits_size
     ) {
   map <- map +
-    tmap::tm_credits(credits, size = credits_size,
-               position = c(0, 0))
+    tmap::tm_credits(
+      credits,
+      size = credits_size,
+      position = c("LEFT", "BOTTOM")
+      )
   return(map)
 }
 
