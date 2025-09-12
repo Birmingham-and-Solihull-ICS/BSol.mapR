@@ -166,7 +166,7 @@ get_scale <- function(
   ) {
 
   # # Check if only one value. If so, override breaks and labels.
-  num_vals <- length(unique(area_data[value_header]))
+  num_vals <- nrow(unique(area_data[value_header]))
   #
   #   breaks = c(unique(area_data[value_header]) - 1,
   #              unique(area_data[value_header]) + 1)
@@ -188,12 +188,12 @@ get_scale <- function(
       values = palette
     )
   } else if (style == "cont") {
+
     scale = tmap::tm_scale_continuous(
       ticks = breaks,
       labels = labels,
       label.na = textNA,
-      values = palette,
-      values.scale = 0.3
+      values = palette
        )
   }
   return(scale)
@@ -309,6 +309,7 @@ plot_base_map <- function(
     tmap::tm_layout(
       legend.position = c("LEFT", "TOP"),
       scale = 0.8,
+      legend.height = 15,
       legend.frame.alpha = 0,
       legend.frame.lwd = 0,
       inner.margins = 0.08,
