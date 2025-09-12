@@ -312,6 +312,7 @@ plot_base_map <- function(
       legend.height = 15,
       legend.frame.alpha = 0,
       legend.frame.lwd = 0,
+      legend.bg.alpha = 0.4,
       inner.margins = 0.08,
       frame = FALSE)
 
