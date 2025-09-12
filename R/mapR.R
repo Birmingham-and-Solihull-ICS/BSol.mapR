@@ -35,16 +35,16 @@ load_shape_file <- function(map_type) {
   # Load lazy loaded shape file
   shape <- switch(
     map_type,
-    "Constituency" = Constituency,
-    "Constituency24" = const24_shape,
-    "Locality" = Locality,
-    "LSOA11" = LSOA11,
-    "LSOA21" = LSOA21,
-    "MSOA11" = MSOA11,
-    "MSOA21" = MSOA21,
-    "Postal District" = `Postal District`,
-    "Postal Sector" = `Postal Sector`,
-    "Ward" = Ward,
+    "Constituency" = sf::st_as_sf(Constituency),
+    "Constituency24" = sf::st_as_sf(const24_shape),
+    "Locality" = sf::st_as_sf(Locality),
+    "LSOA11" = sf::st_as_sf(LSOA11),
+    "LSOA21" = sf::st_as_sf(LSOA21),
+    "MSOA11" = sf::st_as_sf(MSOA11),
+    "MSOA21" = sf::st_as_sf(MSOA21),
+    "Postal District" = sf::st_as_sf(`Postal District`),
+    "Postal Sector" = sf::st_as_sf(`Postal Sector`),
+    "Ward" = sf::st_as_sf(Ward),
     stop("Unknown map type.")
   )
 
@@ -65,7 +65,7 @@ add_const_lines <- function(
   constituencies <- filter_shape(constituencies, area_name)
 
   # TODO: Update lazy loaded data to prevent this
-  colnames(constituencies@data)[1] = "Constituency"
+  colnames(constituencies)[1] = "Constituency"
 
   # Add lines to map
   map <- map +
@@ -107,8 +107,12 @@ add_locality_lines <- function(
 
 add_compass <- function(map) {
   map <- map +
-    tmap::tm_compass(type = "8star", size = 4,
-               position = c("RIGHT", "bottom"))
+    tmap::tm_compass(
+      type = "8star",
+      size = 4,
+      position = c("RIGHT", "bottom"),
+      color.light = "white"
+      )
   return(map)
 }
 
@@ -127,7 +131,7 @@ filter_shape <- function(
     tolower(area_name) %in% c("birmingham", "solihull")
     ) {
     # Filter for Birmingham or Solihull
-    output_shape <- subset(input_shape, input_shape@data$Area == area_name)
+    output_shape <- subset(input_shape, input_shape$Area == area_name)
   }
 
   return(output_shape)
@@ -138,10 +142,61 @@ remove_nas <- function(
     value_header
 ) {
   # filter shape down to areas we have data for
-  mask <- !is.na(shape@data[[value_header]])
+  mask <- !is.na(shape[[value_header]])
   shape <- shape[mask,]
 
   return(shape)
+}
+
+#' @param area_data data frame containing area IDs and plot value
+#' @param value_header Header name for the value to be plotted
+#' @param style fill style e.g. "pretty", "fixed", or "cont"
+#' @param breaks scale breaks to display
+#' @param labels scale labels to display
+#' @param textNA label for missing values
+#' @param palette colour palette
+get_scale <- function(
+  area_data,
+  value_header,
+  style,
+  breaks,
+  labels,
+  textNA,
+  palette
+  ) {
+
+  # # Check if only one value. If so, override breaks and labels.
+  num_vals <- nrow(unique(area_data[value_header]))
+  #
+  #   breaks = c(unique(area_data[value_header]) - 1,
+  #              unique(area_data[value_header]) + 1)
+  #   limits = breaks
+  #   labels = as.character(unique(area_data[value_header]))
+  # } else {
+  #   limits = NULL
+  # }
+  if (num_vals == 1) {
+    # Do nothing
+    scale = tmap::tm_scale()
+  }
+  else if (style %in% c("pretty", "fixed")) {
+    scale = tmap::tm_scale_intervals(
+      style = style,
+      breaks = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette
+    )
+  } else if (style == "cont") {
+
+    scale = tmap::tm_scale_continuous(
+      ticks = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette
+       )
+  }
+  return(scale)
 }
 
 add_credits<- function(
@@ -150,8 +205,11 @@ add_credits<- function(
     credits_size
     ) {
   map <- map +
-    tmap::tm_credits(credits, size = credits_size,
-               position = c(0, 0))
+    tmap::tm_credits(
+      credits,
+      size = credits_size,
+      position = c("LEFT", "BOTTOM")
+      )
   return(map)
 }
 
@@ -177,7 +235,7 @@ plot_base_map <- function(
     fill_title = "",
     fill_missing = NA,
     textNA = "Missing",
-    palette = "Blues",
+    palette = "brewer.blues",
     style = "pretty",
     breaks = NULL,
     labels = NULL,
@@ -194,20 +252,20 @@ plot_base_map <- function(
 
   # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
-    colnames(shape@data)[1] = "Constituency"
+    colnames(shape)[1] = "Constituency"
   } else if (map_type == "Postal District") {
-    colnames(shape@data)[1] = "Postal District"
+    colnames(shape)[1] = "Postal District"
   } else if (map_type == "Postal Sector") {
-    colnames(shape@data)[1] = "Postal Sector"
+    colnames(shape)[1] = "Postal Sector"
   }
 
   # join data
-  shape@data <- shape@data %>%
+  shape <- shape %>%
     dplyr::left_join(area_data, by = map_type)
 
   # Fill missing values (default with NA - i.e. no change)
-  na_mask = is.na(shape@data[value_header])
-  shape@data[value_header][na_mask] <- fill_missing
+  shape[[value_header]][is.na(shape[[value_header]])]  <- fill_missing
+
 
   # Filter shape file
   if (map_type %in% c("Postal District", "Postal Sector")) {
@@ -226,26 +284,37 @@ plot_base_map <- function(
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0, alpha = 0) +
+    tmap::tm_borders(lwd = 0, col_alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_fill(
       value_header,
-      title = fill_title,
-      palette = palette,
-      style = style,
-      breaks = breaks,
-      labels = labels,
-      textNA = textNA
+      fill.scale = get_scale(
+        area_data = area_data,
+        value_header = value_header,
+        style = style,
+        breaks = breaks,
+        labels = labels,
+        textNA = textNA,
+        palette = palette
+        ),
+      fill.legend = tmap::tm_legend(
+        title = fill_title
+        )
     ) +
-    tmap::tm_borders(col = "grey80", lwd = 0.4, alpha = alpha) +
-    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
-              legend.width = 0.5,
-              legend.height = 0.5,
-              legend.frame = FALSE,
-              inner.margins = 0.08,
-              main.title = map_title,
-              main.title.size = 0.8,
-              frame = FALSE)
+    tmap::tm_borders(col = "grey80", lwd = 0.4, col_alpha = alpha) +
+    tmap::tm_title(
+      text = map_title,
+      size = 0.8
+      ) +
+    tmap::tm_layout(
+      legend.position = c("LEFT", "TOP"),
+      scale = 0.8,
+      legend.height = 15,
+      legend.frame.alpha = 0,
+      legend.frame.lwd = 0,
+      legend.bg.alpha = 0.4,
+      inner.margins = 0.08,
+      frame = FALSE)
 
   return(map)
 }
@@ -256,7 +325,7 @@ plot_base_map <- function(
 #' @param map_title Title for the map
 #' @param area_name Name of area to be plotted: BSol, Birmingham, or Solihull
 #' @param map_type Map geography type: Constituency, Ward, LSOA21, etc
-#' @param paletteColour palette
+#' @param palette Colour palette
 #' @param const_lines Include constituency lines: TRUE/FALSE
 #' @param const_names Include constituency names: TRUE/FALSE
 #' @param locality_lines Include locality lines: TRUE/FALSE
@@ -309,25 +378,32 @@ plot_empty_map <- function(
 
   # TODO: Update lazy loaded data to prevent this
   if (map_type == "Constituency") {
-    colnames(shape@data)[1] = "Constituency"
+    colnames(shape)[1] = "Constituency"
   } else if (map_type == "Postal District") {
-    colnames(shape@data)[1] = "Postal District"
+    colnames(shape)[1] = "Postal District"
   }
 
   #### plot map ####
   map <- tmap::tm_shape(base_shape) +
     # Invisible base layer to fix map zoom
-    tmap::tm_borders(lwd = 0, alpha = 0) +
+    tmap::tm_borders(lwd = 0, col_alpha = 0) +
     tmap::tm_shape(shape) +
     tmap::tm_borders(col = "grey80", lwd = 0.65) +
-    tmap::tm_layout(legend.position = c("LEFT", "TOP"),
-              legend.width = 0.5,
-              legend.height = 0.5,
-              legend.frame = FALSE,
-              inner.margins = 0.08,
-              main.title = map_title,
-              main.title.size = 0.8,
-              frame = FALSE)
+    tmap::tm_layout(
+      legend.position = c("LEFT", "TOP"),
+      scale = 0.8,
+      legend.frame.alpha = 0,
+      legend.frame.lwd = 0,
+      legend.frame = FALSE,
+      scalebar.position = c("LEFT", "TOP"),
+      scalebar.size = 5,
+      inner.margins = 0.08,
+      frame = FALSE
+      ) +
+    tmap::tm_title(
+      text = map_title,
+      size = 0.8,
+    )
 
   # Add constituency lines
   if (
@@ -600,29 +676,31 @@ get_points_shape <- function(
 add_points <- function(
     map,
     points_data,
-    size = 0.1,
+    size = 0.3,
     alpha = 1,
     shape = 21,
     color = "orange",
-    palette = "Dark2"
+    palette = "brewer.dark2"
 ) {
 
   # If colnames don't include LONG and LAT - Pull from postcode
   points_data <- get_long_lat(points_data)
 
   # Create new shape with high street points
-  points_shape <- get_points_shape(points_data)
+  points_shape <- sf::st_as_sf(get_points_shape(points_data))
 
   # Fix column names
-  colnames(points_shape@data) = colnames(points_data)
+  colnames(points_shape) <- c(colnames(points_data), "geometry")
 
   map <- map +
     tmap::tm_shape(points_shape) +
     tmap::tm_dots(
       size = size,
-      col = color,
-      palette = palette,
-      alpha = alpha,
+      fill = color,
+      fill.scale = tmap::tm_scale(
+        values = palette
+      ),
+      fill_alpha = alpha,
       shape = shape
       )
 
@@ -659,7 +737,7 @@ get_radii_shapes <- function(
     radii_shape <-sf::st_buffer(
       points_shape_sf,
       units::set_units(
-        points_shape@data[[radii]],
+        points_shape[[radii]],
         units
       )
     )
@@ -703,7 +781,7 @@ add_radii <- function(
     units = "km",
     alpha = 0.5,
     color = "orange",
-    palette = "Dark2"
+    palette = "brewer.dark2"
 ) {
   # If colnames don't include LONG and LAT - Pull from postcode
   points_data <- get_long_lat(points_data)
@@ -712,7 +790,7 @@ add_radii <- function(
   points_shape <- get_points_shape(points_data)
 
   # Fix column names
-  colnames(points_shape@data) = colnames(points_data)
+  colnames(points_shape) = colnames(points_data)
 
   radii_shape <- get_radii_shapes(points_shape, radii, units)
 
@@ -722,7 +800,7 @@ add_radii <- function(
     tmap::tm_polygons(
       col = color,
       palette = palette,
-      alpha = alpha
+      fill_alpha = alpha
       )
 
   return(map)
