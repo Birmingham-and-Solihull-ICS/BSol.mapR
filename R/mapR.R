@@ -167,6 +167,7 @@ get_scale <- function(
 
   # # Check if only one value. If so, override breaks and labels.
   num_vals <- nrow(unique(area_data[value_header]))
+  val_type <- class(area_data[[value_header]])
   #
   #   breaks = c(unique(area_data[value_header]) - 1,
   #              unique(area_data[value_header]) + 1)
@@ -178,6 +179,14 @@ get_scale <- function(
   if (num_vals == 1) {
     # Do nothing
     scale = tmap::tm_scale()
+  }
+  else if (val_type == "factor") {
+    scale = tmap::tm_scale_ordinal(
+      levels = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette
+    )
   }
   else if (style %in% c("pretty", "fixed")) {
     scale = tmap::tm_scale_intervals(
