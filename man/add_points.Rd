@@ -7,11 +7,11 @@
 add_points(
   map,
   points_data,
-  size = 0.1,
+  size = 0.3,
   alpha = 1,
   shape = 21,
   color = "orange",
-  palette = "Dark2"
+  palette = "brewer.dark2"
 )
 }
 \arguments{

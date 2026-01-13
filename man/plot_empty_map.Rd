@@ -26,6 +26,8 @@ plot_empty_map(
 
 \item{map_type}{Map geography type: Constituency, Ward, LSOA21, etc}
 
+\item{palette}{Colour palette}
+
 \item{const_lines}{Include constituency lines: TRUE/FALSE}
 
 \item{const_names}{Include constituency names: TRUE/FALSE}
@@ -41,8 +43,6 @@ plot_empty_map(
 \item{credits_size}{Credit size}
 
 \item{verbose}{Print debugging text}
-
-\item{paletteColour}{palette}
 }
 \description{
 Plot Empty Map

@@ -167,6 +167,7 @@ get_scale <- function(
 
   # # Check if only one value. If so, override breaks and labels.
   num_vals <- nrow(unique(area_data[value_header]))
+  val_type <- class(area_data[[value_header]])
   #
   #   breaks = c(unique(area_data[value_header]) - 1,
   #              unique(area_data[value_header]) + 1)
@@ -178,6 +179,14 @@ get_scale <- function(
   if (num_vals == 1) {
     # Do nothing
     scale = tmap::tm_scale()
+  }
+  else if (val_type == "factor") {
+    scale = tmap::tm_scale_ordinal(
+      levels = breaks,
+      labels = labels,
+      label.na = textNA,
+      values = palette
+    )
   }
   else if (style %in% c("pretty", "fixed")) {
     scale = tmap::tm_scale_intervals(
@@ -220,8 +229,10 @@ add_credits<- function(
 #' @param map_title Title for the map
 #' @param fill_title Title for the fill variable
 #' @param fill_missing Fill missing values (default = NA)
+#' @param textNA What to label NA data with in the legend
 #' @param palette palette
 #' @param style Colour style: pretty/fixed
+#' @param alpha Fill colour transparency (1 = opaque, 0 = fully transparent)
 #' @param breaks Value plotting range
 #' @param labels Custom value labels
 #' @param verbose Print debugging text
@@ -237,6 +248,7 @@ plot_base_map <- function(
     textNA = "Missing",
     palette = "brewer.blues",
     style = "pretty",
+    alpha = 1,
     breaks = NULL,
     labels = NULL,
     verbose = FALSE
@@ -276,9 +288,9 @@ plot_base_map <- function(
 
   # Turn off borders for LSOA maps
   if (map_type %in% c("LSOA11", "LSOA21")) {
-    alpha = 0
+    border_alpha = 0
   } else {
-    alpha = 1
+    border_alpha = 1
   }
 
   #### plot map ####
@@ -299,9 +311,10 @@ plot_base_map <- function(
         ),
       fill.legend = tmap::tm_legend(
         title = fill_title
-        )
+        ),
+      fill_alpha = alpha
     ) +
-    tmap::tm_borders(col = "grey80", lwd = 0.4, col_alpha = alpha) +
+    tmap::tm_borders(col = "grey80", lwd = 0.4, col_alpha = border_alpha) +
     tmap::tm_title(
       text = map_title,
       size = 0.8
@@ -488,6 +501,7 @@ plot_map <- function(
     textNA = "Missing",
     palette = "Blues",
     style = "pretty",
+    alpha = 1,
     breaks = NULL,
     labels = NULL,
     const_lines = "None",
@@ -523,6 +537,7 @@ plot_map <- function(
     textNA = textNA,
     palette= palette,
     style = style,
+    alpha = alpha,
     breaks = breaks,
     labels = labels,
     verbose = verbose
