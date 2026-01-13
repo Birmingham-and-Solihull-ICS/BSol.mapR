@@ -11,7 +11,7 @@ add_radii(
   units = "km",
   alpha = 0.5,
   color = "orange",
-  palette = "Dark2"
+  palette = "brewer.dark2"
 )
 }
 \arguments{

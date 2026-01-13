@@ -229,8 +229,10 @@ add_credits<- function(
 #' @param map_title Title for the map
 #' @param fill_title Title for the fill variable
 #' @param fill_missing Fill missing values (default = NA)
+#' @param textNA What to label NA data with in the legend
 #' @param palette palette
 #' @param style Colour style: pretty/fixed
+#' @param alpha Fill colour transparency (1 = opaque, 0 = fully transparent)
 #' @param breaks Value plotting range
 #' @param labels Custom value labels
 #' @param verbose Print debugging text
