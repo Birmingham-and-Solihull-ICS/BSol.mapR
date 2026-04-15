@@ -627,7 +627,8 @@ get_long_lat <- function(
         ) %>%
         dplyr::left_join(
           # Lazy loaded postcode data
-          WM_Postcodes
+          WM_Postcodes %>%
+            dplyr::select(c(Postcode, LONG, LAT))
         )
       # Check for postcodes without coords
       missing_coords <- points_data$Postcode[is.na(points_data$LONG)]
@@ -706,6 +707,10 @@ add_points <- function(
 
   # Fix column names
   colnames(points_shape) <- c(colnames(points_data), "geometry")
+
+  # Remove longitude and latitude columns
+  points_shape <- points_shape %>%
+    dplyr::select(-c(LONG, LAT))
 
   map <- map +
     tmap::tm_shape(points_shape) +
